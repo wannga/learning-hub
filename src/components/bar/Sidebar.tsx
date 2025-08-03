@@ -12,7 +12,6 @@ function SideBar() {
 
   return (
     <div className="h-auto w-48 bg-[#cbfff4] shadow-lg flex flex-col py-4">
-      {/* หน้าแรก */}
       <button
         onClick={() => navigate("/home")}
         className="flex items-center px-6 py-3 text-sm font-bold text-gray-700 hover:text-teal-600 transition-colors duration-200"
@@ -21,10 +20,8 @@ function SideBar() {
         <span>หน้าแรก</span>
       </button>
 
-      {/* หลักสูตร */}
         <CourseDropdown />
 
-      {/* เกี่ยวกับเรา */}
       <button
         onClick={() => navigate("/about")}
         className="flex items-center px-5 py-3 text-sm font-bold text-gray-700 hover:text-teal-600 transition-colors duration-200"
@@ -33,7 +30,6 @@ function SideBar() {
         <span>เกี่ยวกับเรา</span>
       </button>
 
-      {/* คำศัพท์ */}
       <button
         onClick={() => navigate("/vocabulary")}
         className="flex items-center px-6 py-3 text-sm font-bold text-gray-700 hover:text-teal-600 transition-colors duration-200"

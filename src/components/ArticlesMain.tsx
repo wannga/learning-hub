@@ -1,58 +1,59 @@
-import React from "react";
-import SideBar from "../components/Sidebar.tsx";
+import React, { useEffect, useState } from "react";
+import SideBar from "./bar/Sidebar.tsx";
 import { Clock, User } from "lucide-react";
-import Header from "../components/Header.tsx";
+import Header from "./bar/Header.tsx";
+import { useNavigate } from "@remix-run/react";
 
-const articles = [
-  {
-    id: 1,
-    title: "วางแผนมรดกส่งต่อความมั่งคั่ง",
-    description:
-      "วางแผนมรดกเพื่อความอุ่นใจเพื่อคนที่รัก การวางแผนทางการเงินเพื่ออนาคตที่มั่นคง",
-    time: "1 ชม. 30 นาที",
-    author: "ดร.เกษรา ธัญลักษณ์ภาคย์",
-    image: "/images/WMD1601.jpg",
-    tag: "มรดก",
-    link: "https://elearning.set.or.th/SETGroup/courses/1705/info",
-  },
-  {
-    id: 2,
-    title: "วางแผนมรดกส่งต่อความมั่งคั่ง",
-    description:
-      "วางแผนมรดกเพื่อความอุ่นใจเพื่อคนที่รัก การวางแผนทางการเงินเพื่ออนาคตที่มั่นคง",
-    time: "1 ชม. 30 นาที",
-    author: "ดร.เกษรา ธัญลักษณ์ภาคย์",
-    image: "/images/WMD1601.jpg",
-  },
-  {
-    id: 3,
-    title: "วางแผนมรดกส่งต่อความมั่งคั่ง",
-    description:
-      "วางแผนมรดกเพื่อความอุ่นใจเพื่อคนที่รัก การวางแผนทางการเงินเพื่ออนาคตที่มั่นคง",
-    time: "1 ชม. 30 นาที",
-    author: "ดร.เกษรา ธัญลักษณ์ภาคย์",
-    image: "/images/WMD1601.jpg",
-  },
-  {
-    id: 4,
-    title: "วางแผนมรดกส่งต่อความมั่งคั่ง",
-    description:
-      "วางแผนมรดกเพื่อความอุ่นใจเพื่อคนที่รัก การวางแผนทางการเงินเพื่ออนาคตที่มั่นคง",
-    time: "1 ชม. 30 นาที",
-    author: "ดร.เกษรา ธัญลักษณ์ภาคย์",
-    image: "/images/WMD1601.jpg",
-  },
-];
+type Article = {
+  id: number;
+  title: string;
+  description: string;
+  time: string;
+  author: string;
+  image: Buffer | string | null; // Can be BLOB from database
+  tag: string[] | null;
+  link: string;
+  objective: string;
+  target: string;
+  level: string;
+};
 
-export default function Articles() {
+export default function ArticlesMain() {
+  const navigate = useNavigate();
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const handleArticleSelect = (articleId: number) => {
+    sessionStorage.setItem("currentArticleId", JSON.stringify(articleId));
+    navigate("/articlePage");
+  };
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:3001/getAllArticlesBasic"
+        );
+        const data = await response.json();
+        setArticles(data);
+      } catch (error) {
+        console.error("Error fetching Articles:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
   return (
     <div className="flex bg-gray-50 min-h-screen">
       {/* Main Content */}
       <main className="flex-1">
         {/* Topbar */}
-        <Header/>
+        <Header />
 
-        <div className="flex flex-row">
+        <div className="flex flex-row h-full">
           <SideBar />
 
           {/* Articles Section */}
@@ -71,14 +72,20 @@ export default function Articles() {
                 {articles.map((article) => (
                   <a
                     key={article.id}
-                    href={article.link}
+                    onClick={() => handleArticleSelect(article.id)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
                   >
                     <div className="relative">
                       <img
-                        src={article.image}
+                        src={
+                          article.image
+                            ? `data:image/jpeg;base64,${Buffer.from(
+                                article.image
+                              ).toString("base64")}`
+                            : "/images/com.jpg"
+                        }
                         alt={article.title}
                         className="w-full h-408 object-cover"
                       />

@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  time        String?   @db.VarChar(20)
+  author      String?   @db.VarChar(100)
+  image       Bytes?
+  tag         String[]
+  link        String?   @db.VarChar(100)
+
+  @@map("articles")
+}
+
+model CaseStudy {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  time        String?  @db.VarChar(20)
+  author      String?  @db.VarChar(100)
+  image       Bytes?
+  tag         String[] @db.VarChar(50)
+  link        String?  @db.VarChar(100)
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique @db.VarChar(255)
+  password    String
+  signup_date DateTime @db.Timestamptz(6)
+  is_admin    Boolean
+}
+
+model Video {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(255)
+  description String?
+  creator    String?  @db.VarChar(100)
+  time       String?  @db.VarChar(50)
+  link       String?  @db.VarChar(255)
+  objective  String[] @db.VarChar(255)
+  target     String?  @db.VarChar(100)
+  level      String?  @db.VarChar(100)
+}
+
+model Vocabulary {
+  id         Int    @id @default(autoincrement())
+  vocab      String @unique @db.VarChar(255)
+  thai       String @db.VarChar(255)
+  definition String
+}

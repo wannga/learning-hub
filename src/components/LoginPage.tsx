@@ -8,13 +8,17 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [generalError, setGeneralError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = () => {
     navigate("/signup");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setGeneralError("");
+    setIsLoading(true);
 
     let hasError = false;
 
@@ -32,8 +36,36 @@ const Login: React.FC = () => {
       setPasswordError("");
     }
 
-    if (!hasError) {
-      console.log("Login successful");
+    if (hasError) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3001/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setGeneralError(data?.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
+      } else if (data?.user && data?.token) {
+        sessionStorage.setItem("user_id", data.user.id);
+        sessionStorage.setItem("username", data.user.username);
+        sessionStorage.setItem("token", data.token);
+
+        navigate("/home");
+      } else {
+        setGeneralError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ: ข้อมูลผู้ใช้ไม่ถูกต้อง");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setGeneralError("เกิดข้อผิดพลาดในฝั่งเซิร์ฟเวอร์");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,9 +85,12 @@ const Login: React.FC = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="ชื่อผู้ใช้หรือหมายเลขโทรศัพท์"
+              disabled={isLoading}
               className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 ${
-                usernameError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
-              }`}
+                usernameError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             />
             {usernameError && (
               <p className="text-red-500 text-sm mt-1">{usernameError}</p>
@@ -68,31 +103,48 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="รหัสผ่าน"
+              disabled={isLoading}
               className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 ${
-                passwordError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
-              }`}
+                passwordError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             />
             {passwordError && (
               <p className="text-red-500 text-sm mt-1">{passwordError}</p>
             )}
           </div>
 
+          {generalError && (
+            <div className="text-red-600 text-sm text-center">
+              {generalError}
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
-              className="w-full bg-[#015595] text-white py-3 rounded-md hover:bg-[#3883bc] transition"
+              disabled={isLoading}
+              className={`w-full py-3 rounded-md transition ${
+                isLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#015595] hover:bg-[#3883bc]"
+              } text-white`}
             >
-              เข้าสู่ระบบ
+              {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </button>
           </div>
         </form>
 
         <div className="text-center text-sm text-gray-500 mt-4">
-          ――――เข้าสู่ระบบผ่านบัญชีโซเชียล――――
+          ―――― เข้าสู่ระบบผ่านบัญชีโซเชียล ――――
         </div>
 
         <div className="mt-4 space-y-2 w-72">
-          <button className="w-full flex items-center justify-center bg-white border border-gray-300 py-2 rounded-md hover:bg-gray-100">
+          <button 
+            className="w-full flex items-center justify-center bg-white border border-gray-300 py-2 rounded-md hover:bg-gray-100"
+            disabled={isLoading}
+          >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg"
               alt="LINE"
@@ -100,7 +152,10 @@ const Login: React.FC = () => {
             />
             เข้าสู่ระบบผ่าน LINE
           </button>
-          <button className="w-full flex items-center justify-center bg-white border border-gray-300 py-2 rounded-md hover:bg-gray-100">
+          <button 
+            className="w-full flex items-center justify-center bg-white border border-gray-300 py-2 rounded-md hover:bg-gray-100"
+            disabled={isLoading}
+          >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
               alt="Google"
@@ -111,7 +166,9 @@ const Login: React.FC = () => {
         </div>
 
         <div
-          className="text-center text-sm text-blue-600 mt-4 hover:underline cursor-pointer"
+          className={`text-center text-sm text-blue-600 mt-4 hover:underline cursor-pointer ${
+            isLoading ? "pointer-events-none opacity-50" : ""
+          }`}
           onClick={handleSignup}
         >
           ยังไม่ได้สมัคร? ลงทะเบียน
