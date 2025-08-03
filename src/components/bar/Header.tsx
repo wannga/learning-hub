@@ -1,8 +1,13 @@
 import { Search, Menu } from "lucide-react";
 import React, { useState } from "react";
+import { useNavigate } from "@remix-run/react";
 
 const Header = () => {
-    const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const handleLogin = () => {
+    navigate("/login");
+  };
     
     return (
         <header className="flex items-center justify-between py-4 px-6 bg-[#0c7b6a] shadow-sm">
@@ -25,11 +30,12 @@ const Header = () => {
           </div>
         </div>
         <div className="space-x-2">
-          <button className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-            เข้าสู่ระบบ
-          </button>
-          <button className="bg-white text-gray-800 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-            ลงทะเบียน
+
+          <button 
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            onClick={handleLogin}
+          >
+            ออกจากระบบ
           </button>
         </div>
       </header>

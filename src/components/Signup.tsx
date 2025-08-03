@@ -11,28 +11,32 @@ const Signup: React.FC = () => {
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [generalError, setGeneralError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleLogin = () => {
     navigate("/login");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setUsernameError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
+    setGeneralError("");
+    setSuccessMessage("");
 
     let hasError = false;
 
     if (!username.trim()) {
       setUsernameError("กรุณากรอกชื่อผู้ใช้หรือหมายเลขโทรศัพท์");
       hasError = true;
-    } else {
-      setUsernameError("");
     }
 
     if (!password.trim()) {
       setPasswordError("กรุณากรอกรหัสผ่าน");
       hasError = true;
-    } else {
-      setPasswordError("");
     }
 
     if (!confirmPassword.trim()) {
@@ -41,13 +45,38 @@ const Signup: React.FC = () => {
     } else if (password !== confirmPassword) {
       setConfirmPasswordError("รหัสผ่านไม่ตรงกัน");
       hasError = true;
-    } else {
-      setConfirmPasswordError("");
     }
 
-    if (!hasError) {
-      console.log("Signup successful");
-      // Submit to API
+    if (hasError) return;
+
+    const signup_date = new Date().toISOString(); // or format like 'YYYY-MM-DD'
+
+    try {
+      const response = await fetch("http://localhost:3001/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          password,
+          signup_date,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setGeneralError(
+          data?.message || data?.errors?.[0]?.msg || "เกิดข้อผิดพลาดในการลงทะเบียน"
+        );
+      } else {
+        setSuccessMessage("ลงทะเบียนสำเร็จ! กำลังเปลี่ยนหน้าเข้าสู่ระบบ...");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setGeneralError("เกิดข้อผิดพลาดในฝั่งเซิร์ฟเวอร์");
     }
   };
 
@@ -71,9 +100,7 @@ const Signup: React.FC = () => {
                 usernameError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
               }`}
             />
-            {usernameError && (
-              <p className="text-red-500 text-sm mt-1">{usernameError}</p>
-            )}
+            {usernameError && <p className="text-red-500 text-sm mt-1">{usernameError}</p>}
           </div>
 
           <div>
@@ -86,9 +113,7 @@ const Signup: React.FC = () => {
                 passwordError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
               }`}
             />
-            {passwordError && (
-              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-            )}
+            {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
           </div>
 
           <div>
@@ -98,13 +123,23 @@ const Signup: React.FC = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="ยืนยันรหัสผ่าน"
               className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 ${
-                confirmPasswordError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+                confirmPasswordError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
               }`}
             />
             {confirmPasswordError && (
               <p className="text-red-500 text-sm mt-1">{confirmPasswordError}</p>
             )}
           </div>
+
+          {generalError && (
+            <p className="text-red-500 text-sm text-center">{generalError}</p>
+          )}
+
+          {successMessage && (
+            <p className="text-green-600 text-sm text-center">{successMessage}</p>
+          )}
 
           <div>
             <button
@@ -117,7 +152,7 @@ const Signup: React.FC = () => {
         </form>
 
         <div className="text-center text-sm text-gray-500 mt-4">
-          ――――ลงทะเบียนผ่านบัญชีโซเชียล――――
+          ―――― ลงทะเบียนผ่านบัญชีโซเชียล ――――
         </div>
 
         <div className="mt-4 space-y-2 w-72">
@@ -143,7 +178,7 @@ const Signup: React.FC = () => {
           className="text-center text-sm text-blue-600 mt-4 hover:underline cursor-pointer"
           onClick={handleLogin}
         >
-          ยังไม่ได้สมัคร? เข้าสู่ระบบ
+          เข้าสู่ระบบ
         </div>
       </div>
     </div>

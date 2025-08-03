@@ -22,7 +22,7 @@ const CourseDropdown = () => {
         <div className="border-l-2 border-teal-200 font-medium">
           <div
             onClick={() => {
-              navigate("/videoPage");
+              navigate("/videoMain");
               setOpen(false);
             }}
             className="cursor-pointer px-12 py-2 text-sm text-gray-600 hover:text-teal-600 transition-colors duration-200"
@@ -31,12 +31,21 @@ const CourseDropdown = () => {
           </div>
           <div
             onClick={() => {
-              navigate("/articles");
+              navigate("/articleMain");
               setOpen(false);
             }}
             className="cursor-pointer px-12 py-2 text-sm text-gray-600 hover:text-teal-600 transition-colors duration-200"
           >
             บทความ
+          </div>
+          <div
+            onClick={() => {
+              navigate("/caseStudyMain");
+              setOpen(false);
+            }}
+            className="cursor-pointer px-12 py-2 text-sm text-gray-600 hover:text-teal-600 transition-colors duration-200"
+          >
+            case study
           </div>
         </div>
       )}
