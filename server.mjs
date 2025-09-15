@@ -1,17 +1,12 @@
 import express from 'express';
 import cors from 'cors';
-import { Users } from './src/models/Users.js';
-import { Videos } from './src/models/Videos.js';
-import { CaseStudy } from './src/models/CaseStudy.js';
 import sequelize from './src/config/database.js';
 import VideosController from './src/controllers/VideosController.js';
 import ArticlesController from './src/controllers/ArticlesController.js';
 import CaseStudyController from './src/controllers/CaseStudyController.js';
 import VocabularyController from './src/controllers/VocabularyController.js';
 import UserController from './src/controllers/UserController.js';
-import { Buffer } from "buffer";
 import multer from 'multer';
-import sharp from 'sharp';
 import LoginController from './src/controllers/LoginController.js';
 import SignupController from './src/controllers/SignupController.js';
 import QuizController from './src/controllers/QuizController.js';
@@ -23,12 +18,16 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL, 'https://learning-hub-14u9.vercel.app'] 
+    : "http://localhost:3000",
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ limit: '1mb', extended: true }));
+
 const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
@@ -44,16 +43,22 @@ const upload = multer({
   }
 });
 
-app.listen(PORT, async () => {
+const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected');
-    console.log(`✅ Express server running at http://localhost:${PORT}`);
+    
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync();
+    }
   } catch (err) {
     console.error('❌ Failed to connect to database:', err);
   }
-});
+};
 
+initializeDatabase();
+
+// Routes
 app.post('/login', LoginController.login);
 app.post('/signup', SignupController.signup);
 app.get('/getAllVideos', VideosController.getAllVideos);
@@ -89,13 +94,24 @@ app.put('/saveTestScore/:userId', UserTestScoresController.saveTestScore);
 app.get('/getUserTestScore/:userId', UserTestScoresController.getUserTestScore);
 app.post('/createTest', TestController.createTest);
 
+app.get('/', (req, res) => {
+  res.json({ message: 'API is running!', status: 'ok' });
+});
+
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(413).json({ message: 'File too large. Maximum size is 10MB.' });
     }
   }
+  console.error('Error:', error);
   return res.status(500).json({ message: 'Server error' });
 });
 
-//Run: node server.mjs
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`✅ Express server running at http://localhost:${PORT}`);
+  });
+}
+
+export default app;

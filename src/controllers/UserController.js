@@ -1,11 +1,8 @@
-import { body, validationResult } from "express-validator";
 import { Users } from "../models/Users.js";
 import { Articles } from "../models/Articles.js";
 import { CaseStudy } from "../models/CaseStudy.js";
 import { Videos } from "../models/Videos.js";
-import { UserTestScores } from "../models/UserTestScores.js";
 import { Op } from "sequelize";
-import sharp from "sharp";
 import bcrypt from "bcrypt";
 import multer from "multer";
 const upload = multer();
