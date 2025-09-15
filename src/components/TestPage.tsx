@@ -167,7 +167,7 @@ const TestPage: React.FC = () => {
             )}
 
             <div className="text-center">
-              {testData.length != 0 ? (
+              {testData.length !== 0 ? (
                 <button
                   onClick={handleSubmit}
                   disabled={

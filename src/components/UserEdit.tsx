@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
-import { Clock, User } from "lucide-react";
-import { useNavigate } from "@remix-run/react";
 import { Pencil } from "lucide-react";
 
 type User = {
@@ -22,7 +20,6 @@ type User = {
 };
 
 const UserEdit: React.FC = () => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -328,7 +325,6 @@ const UserEdit: React.FC = () => {
               <form onSubmit={handleProfileSubmit}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="relative w-24 h-24 rounded-full bg-gray-200 overflow-hidden">
-                    {/* Avatar with proper format detection */}
                     <img
                       src={getProfileImageUrl(user?.image)}
                       alt="Profile"

@@ -28,7 +28,7 @@ function VideoPage() {
   const [error, setError] = useState("");
   const storedVideoId = sessionStorage.getItem("currentVideoId");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const storedUserId = sessionStorage.getItem("userId");
   const storedUserRole = sessionStorage.getItem("userRole") === "true";
   const [userTestScore, setUserTestScore] = useState<UserTestScore | null>(
@@ -98,7 +98,7 @@ function VideoPage() {
 
     fetchUserTestScore();
     fetchVideo();
-  }, [storedVideoId]);
+  }, [storedVideoId, storedUserId]);
 
   const handleUserTest = () => {
     if (!userTestScore) {

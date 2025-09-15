@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
-import { Clock, User } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useNavigate } from "@remix-run/react";
 
 type Video = {
@@ -45,13 +45,13 @@ type User = {
   quiz_score: number;
 };
 
-const HomePage: React.FC = () => {
+const Home: React.FC = () => {
   const navigate = useNavigate();
   const [videos, setVideos] = useState<Video[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [caseStudies, setCaseStudies] = useState<CaseStudies[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [, setLoading] = useState(true);
+  const [, setError] = useState("");
   const storedUserId = sessionStorage.getItem("userId");
   const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState<User | null>(null);
@@ -159,7 +159,7 @@ const HomePage: React.FC = () => {
     };
 
     fetchUser();
-  }, []);
+  }, [storedUserId]); // Added storedUserId to dependency array
 
   const hasValidTags = (tag: string[] | null) => {
     if (!tag) return false;
@@ -219,12 +219,10 @@ const HomePage: React.FC = () => {
                   const tags = processTags(video.tag);
 
                   return (
-                    <a
+                    <button
                       key={video.id}
-                      target="_blank"
                       onClick={() => handleVideoSelect(video.id)}
-                      rel="noopener noreferrer"
-                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block text-left"
                     >
                       <div className="relative">
                         <iframe
@@ -258,7 +256,7 @@ const HomePage: React.FC = () => {
                           )}
                         </div>
                       </div>
-                    </a>
+                    </button>
                   );
                 })}
               </div>
@@ -282,12 +280,10 @@ const HomePage: React.FC = () => {
                   const tags = processTags(article.tag);
 
                   return (
-                    <a
+                    <button
                       key={article.id}
                       onClick={() => handleArticleSelect(article.id)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block text-left"
                     >
                       <div className="relative">
                         <img
@@ -325,7 +321,7 @@ const HomePage: React.FC = () => {
                           )}
                         </div>
                       </div>
-                    </a>
+                    </button>
                   );
                 })}
               </div>
@@ -349,12 +345,10 @@ const HomePage: React.FC = () => {
                   const tags = processTags(caseStudy.tag);
 
                   return (
-                    <a
+                    <button
                       key={caseStudy.id}
                       onClick={() => handleCaseStudySelect(caseStudy.id)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block text-left"
                     >
                       <div className="relative">
                         <img
@@ -392,7 +386,7 @@ const HomePage: React.FC = () => {
                           )}
                         </div>
                       </div>
-                    </a>
+                    </button>
                   );
                 })}
               </div>
@@ -412,4 +406,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage;
+export default Home;

@@ -127,7 +127,7 @@ export default function VideoMain() {
               <div className="border-t-[1px] border-gray-700 mb-6" />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredVideos.map((video) => (
-                  <a
+                  <button
                     key={video.id}
                     className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
                     onClick={() => handleVideoSelect(video.id)}
@@ -172,7 +172,7 @@ export default function VideoMain() {
                         )}
                       </div>
                     </div>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>

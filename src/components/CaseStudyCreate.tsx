@@ -20,6 +20,7 @@ function CaseStudyCreate() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState(""); 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -30,7 +31,7 @@ function CaseStudyCreate() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const maxSize = 10 * 1024 * 1024;
+      const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         setError("Image size should be less than 10MB.");
         return;
@@ -46,11 +47,41 @@ function CaseStudyCreate() {
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      time: "",
+      author: "",
+      tag: "",
+      link: "",
+    });
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    setIsSubmitting(true);
 
-    if (!formData.title || !formData.description || !formData.time || !formData.author || !formData.link) {
+    // Validate required fields
+    if (!formData.title.trim() || !formData.description.trim() || 
+        !formData.time.trim() || !formData.author.trim() || !formData.link.trim()) {
       setError("Please fill in all required fields.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate URL format
+    try {
+      new URL(formData.link.trim());
+    } catch {
+      setError("Please enter a valid URL for the case study link.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -68,45 +99,32 @@ function CaseStudyCreate() {
         submitData.append('image', selectedFile);
       }
 
-      let hasData = false;
-      for (let [key, value] of submitData.entries()) {
-        hasData = true;
-        break;
-      }
-      
-      if (!hasData) {
-        console.error('FormData is empty!');
-        setError('Form data is empty. Please try again.');
-        return;
-      }
-
-      console.log('Sending request to server...');
-      
       const response = await axios.post("http://localhost:3001/createCaseStudy", submitData, {
         headers: {
-         
+          'Content-Type': 'multipart/form-data',
         },
         timeout: 30000,
       });
 
       if (response.status === 201) {
         setSuccess("Case study created successfully.");
-        setError("");
+        resetForm();
         setTimeout(() => navigate("/caseStudyMain"), 1500);
       }
     } catch (err: any) {
+      console.error('Submit error:', err);
       
-      if (err.response && err.response.data) {
-        if (err.response.data.message) {
-          setError(err.response.data.message);
-        } else {
-          setError(`Server error: ${JSON.stringify(err.response.data)}`);
-        }
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
       } else if (err.code === 'ECONNABORTED') {
         setError("Request timeout. Please try again.");
+      } else if (err.response?.status === 413) {
+        setError("File too large. Please select a smaller image.");
       } else {
-        setError("Server error. Please try again.");
+        setError("Failed to create case study. Please try again.");
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -114,15 +132,23 @@ function CaseStudyCreate() {
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <div className="flex h-full">
-        <div className=" min-h-screen">
-            <SideBar />
-          </div>
+        <div className="min-h-screen">
+          <SideBar />
+        </div>
 
         <div className="w-10/12 mx-auto bg-white p-8 rounded shadow">
           <h1 className="text-2xl font-bold mb-6">เพิ่ม Case Study</h1>
 
-          {error && <div className="bg-red-100 text-red-700 px-4 py-2 mb-4 rounded">{error}</div>}
-          {success && <div className="bg-green-100 text-green-700 px-4 py-2 mb-4 rounded">{success}</div>}
+          {error && (
+            <div className="bg-red-100 text-red-700 px-4 py-2 mb-4 rounded">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-100 text-green-700 px-4 py-2 mb-4 rounded">
+              {success}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -132,8 +158,10 @@ function CaseStudyCreate() {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
+                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter case study title"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -143,9 +171,11 @@ function CaseStudyCreate() {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
+                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={4}
+                placeholder="Enter case study description"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -156,9 +186,10 @@ function CaseStudyCreate() {
                 name="time"
                 value={formData.time}
                 onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
-                placeholder="DD/MM/YYYY"
+                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g. 5 นาที หรือ DD/MM/YYYY"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -169,8 +200,10 @@ function CaseStudyCreate() {
                 name="author"
                 value={formData.author}
                 onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
+                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter author name"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -181,47 +214,56 @@ function CaseStudyCreate() {
                 name="tag"
                 value={formData.tag}
                 onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
-                placeholder="e.g. มือใหม่, ลงทุน"
+                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g. มือใหม่, ลงทุน, การเงิน"
+                disabled={isSubmitting}
               />
             </div>
 
             <div>
               <label className="block font-semibold">Case Study Link*</label>
               <input
-                type="text"
+                type="url"
                 name="link"
                 value={formData.link}
                 onChange={handleChange}
-                className="w-full border px-4 py-2 rounded"
-                placeholder="e.g. https://google.com/..."
+                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="https://example.com/case-study"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
             <div>
-              <label className="block font-semibold">Image</label>
+              <label className="block font-semibold">Image (Optional)</label>
               <input
                 ref={fileInputRef}
                 type="file"
                 name="image"
                 onChange={handleFileChange}
-                className="w-full border px-4 py-2 rounded"
+                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 accept="image/*"
+                disabled={isSubmitting}
               />
               {selectedFile && (
                 <p className="text-sm text-green-600 mt-1">
                   Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
+              <p className="text-xs text-gray-500 mt-1">
+                Maximum file size: 10MB. Supported formats: JPG, PNG, GIF, WebP
+              </p>
             </div>
 
-            <button
-              type="submit"
-              className="bg-[#0c7b6a] text-white px-6 py-2 rounded hover:bg-[#2d8f80]"
-            >
-              Create Case Study
-            </button>
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-[#0c7b6a] text-white px-8 py-3 rounded hover:bg-[#2d8f80] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isSubmitting ? 'Creating Case Study...' : 'Create Case Study'}
+              </button>
+            </div>
           </form>
         </div>
       </div>

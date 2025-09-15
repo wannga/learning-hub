@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
-import { Clock, User } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useNavigate } from "@remix-run/react";
 import UserTagsProgress from "./bar/UserTagsProgress.tsx";
 
@@ -113,13 +113,13 @@ const UserProfile: React.FC = () => {
     },
   ];
 
-  const getUserResult = (score: number): InvestorType | null => {
+  const getUserResult = useCallback((score: number): InvestorType | null => {
     return (
       investorTypes.find(
         (type) => score >= type.min_score && score <= type.max_score
       ) || null
     );
-  };
+  }, []);
 
   const handleVideoSelect = (videoId: number) => {
     sessionStorage.setItem("currentVideoId", JSON.stringify(videoId));
@@ -133,6 +133,7 @@ const UserProfile: React.FC = () => {
 
   const handleCaseStudySelect = (caseStudyId: number) => {
     sessionStorage.setItem("currentCaseStudyId", JSON.stringify(caseStudyId));
+    navigate("/caseStudyPage");
   };
 
   useEffect(() => {
@@ -223,7 +224,7 @@ const UserProfile: React.FC = () => {
     fetchVideos();
     fetchArticles();
     fetchCaseStudy();
-  }, [storedUserId]);
+  }, [storedUserId, getUserResult]);
 
   const hasValidTags = (tag: string[] | null) => {
     if (!tag) return false;
@@ -304,9 +305,12 @@ const UserProfile: React.FC = () => {
                     <p>
                       รูปแบบการลงทุน:{" "}
                       {user?.quiz_score === 0 ? (
-                        <a onClick={()=>navigate('/quizPage')} className="text-blue-600 underline">
+                        <button 
+                          onClick={()=>navigate('/quizPage')} 
+                          className="text-blue-600 underline hover:text-blue-800 bg-none border-none cursor-pointer"
+                        >
                           คลิกเพื่อหารูปแบบการลงทุนที่เหมาะกับคุณเลย
-                        </a>
+                        </button>
                       ) : (
                         userResult?.name || "-"
                       )}
@@ -345,10 +349,10 @@ const UserProfile: React.FC = () => {
                     {videos.map((video) => {
                       const tags = processTags(video.tag);
                       return (
-                        <a
+                        <button
                           key={video.id}
                           onClick={() => handleVideoSelect(video.id)}
-                          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer text-left w-full"
                         >
                           <div className="relative">
                             <iframe
@@ -380,7 +384,7 @@ const UserProfile: React.FC = () => {
                               )}
                             </div>
                           </div>
-                        </a>
+                        </button>
                       );
                     })}
                   </div>
@@ -410,12 +414,10 @@ const UserProfile: React.FC = () => {
                       const tags = processTags(article.tag);
 
                       return (
-                        <a
+                        <button
                           key={article.id}
                           onClick={() => handleArticleSelect(article.id)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer text-left w-full"
                         >
                           <div className="relative">
                             <img
@@ -453,7 +455,7 @@ const UserProfile: React.FC = () => {
                               )}
                             </div>
                           </div>
-                        </a>
+                        </button>
                       );
                     })}
                   </div>
@@ -483,12 +485,10 @@ const UserProfile: React.FC = () => {
                       const tags = processTags(caseStudy.tag);
 
                       return (
-                        <a
+                        <button
                           key={caseStudy.id}
                           onClick={() => handleCaseStudySelect(caseStudy.id)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer text-left w-full"
                         >
                           <div className="relative">
                             <img
@@ -526,7 +526,7 @@ const UserProfile: React.FC = () => {
                               )}
                             </div>
                           </div>
-                        </a>
+                        </button>
                       );
                     })}
                   </div>

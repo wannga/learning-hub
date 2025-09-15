@@ -18,7 +18,7 @@ type CaseStudies = {
 export default function CaseStudyMain() {
   const navigate = useNavigate();
   const [caseStudies, setCaseStudies] = useState<CaseStudies[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const storedUserRole = sessionStorage.getItem("userRole") === "true";
   const storedUserId = sessionStorage.getItem("userId");
   const [searchTerm, setSearchTerm] = useState("");

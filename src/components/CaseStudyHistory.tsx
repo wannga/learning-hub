@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import { Clock, User } from "lucide-react";
 import Header from "./bar/Header.tsx";
-import { useNavigate } from "@remix-run/react";
 
 type CaseStudies = {
   id: number;
@@ -16,7 +15,6 @@ type CaseStudies = {
 };
 
 export default function CaseStudyHistory() {
-  const navigate = useNavigate();
   const [caseStudies, setCaseStudies] = useState<CaseStudies[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

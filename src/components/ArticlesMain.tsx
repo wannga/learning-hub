@@ -21,7 +21,7 @@ type Article = {
 export default function ArticlesMain() {
   const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const storedUserRole = sessionStorage.getItem("userRole") === "true";
   const storedUserId = sessionStorage.getItem("userId");
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,4 +1,4 @@
-import { Search, Menu } from "lucide-react";
+import { Search } from "lucide-react";
 import React from "react";
 import { useNavigate } from "@remix-run/react";
 import { MdMenuBook } from "react-icons/md";
@@ -32,10 +32,6 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
   return (
     <header className="flex items-center justify-between py-4 px-6 bg-[#0c7b6a] shadow-sm">
       <div className="flex items-center gap-6">
-        {/* <button className="p-2 rounded-md hover:bg-[#218c7c]">
-          <MdMenuBook className="w-8 h-8 text-gray-700" />
-        </button> */}
-        
         <div className="text-2xl font-bold text-gray-800 flex flex-row">
           <MdMenuBook className="w-8 h-8 text-gray-800 mr-2" />
           Learning Hub</div>
