@@ -151,29 +151,6 @@ const Signup: React.FC = () => {
           </div>
         </form>
 
-        <div className="text-center text-sm text-gray-500 mt-4">
-          ―――― ลงทะเบียนผ่านบัญชีโซเชียล ――――
-        </div>
-
-        <div className="mt-4 space-y-2 w-72">
-          <button className="w-full flex items-center justify-center bg-white border border-gray-300 py-2 rounded-md hover:bg-gray-100">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg"
-              alt="LINE"
-              className="w-6 h-6 mr-2"
-            />
-            ลงทะเบียนผ่าน LINE
-          </button>
-          <button className="w-full flex items-center justify-center bg-white border border-gray-300 py-2 rounded-md hover:bg-gray-100">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-              alt="Google"
-              className="w-6 h-6 mr-2"
-            />
-            ลงทะเบียนผ่าน GOOGLE
-          </button>
-        </div>
-
         <div
           className="text-center text-sm text-blue-600 mt-4 hover:underline cursor-pointer"
           onClick={handleLogin}
