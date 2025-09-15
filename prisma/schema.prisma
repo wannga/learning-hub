@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -14,17 +11,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Article {
-  id          Int       @id @default(autoincrement())
+model Articles {
+  id          Int      @id @default(autoincrement())
   title       String
   description String?
-  time        String?   @db.VarChar(20)
-  author      String?   @db.VarChar(100)
+  time        String?  @db.VarChar(20)
+  author      String?  @db.VarChar(100)
   image       Bytes?
   tag         String[]
-  link        String?   @db.VarChar(100)
+  link        String?
+  objective   String?
+  target      String?
+  level       String?
+  infoBox     String[]
 
-  @@map("articles")
+  sections    ArticleSections[]
+
+  @@map("Articles")
+}
+
+model ArticleSections {
+  id            Int      @id @default(autoincrement())
+  article_id    Int
+  heading       String
+  content       String[] @db.Text
+  list          String[] @db.Text
+  table_headers String[] @db.Text
+  table_rows    Json?
+
+  article       Articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
+
+  @@map("ArticleSections")
 }
 
 model CaseStudy {
@@ -34,28 +51,46 @@ model CaseStudy {
   time        String?  @db.VarChar(20)
   author      String?  @db.VarChar(100)
   image       Bytes?
-  tag         String[] @db.VarChar(50)
+  tag         String[]
   link        String?  @db.VarChar(100)
+
+  @@map("CaseStudy")
 }
 
-model User {
+model Users {
+  id                Int       @id @default(autoincrement())
+  username          String    @unique @db.VarChar(255)
+  password          String
+  signup_date       DateTime
+  is_admin          Boolean
+  career            String?   @db.VarChar(255)
+  experience        String?   @db.VarChar(255)
+  email             String?
+  image             Bytes?
+  article_history   Int[]
+  casestudy_history Int[]
+  video_history     Int[]
+  quiz_score        Int       @default(0)
+  test_score        Int       @default(0)
+
+  userTestScores    UserTestScores[]
+
+  @@map("Users")
+}
+
+model Videos {
   id          Int      @id @default(autoincrement())
-  username    String   @unique @db.VarChar(255)
-  password    String
-  signup_date DateTime @db.Timestamptz(6)
-  is_admin    Boolean
-}
-
-model Video {
-  id         Int      @id @default(autoincrement())
-  title      String   @db.VarChar(255)
+  title       String   @db.VarChar(255)
   description String?
-  creator    String?  @db.VarChar(100)
-  time       String?  @db.VarChar(50)
-  link       String?  @db.VarChar(255)
-  objective  String[] @db.VarChar(255)
-  target     String?  @db.VarChar(100)
-  level      String?  @db.VarChar(100)
+  creator     String?  @db.VarChar(100)
+  time        String?  @db.VarChar(50)
+  link        String?  @db.VarChar(255)
+  objective   String[]
+  target      String?  @db.VarChar(100)
+  level       String?  @db.VarChar(100)
+  tag         String[] @default([])
+
+  @@map("Videos")
 }
 
 model Vocabulary {
@@ -63,4 +98,61 @@ model Vocabulary {
   vocab      String @unique @db.VarChar(255)
   thai       String @db.VarChar(255)
   definition String
+
+  @@map("Vocabulary")
+}
+
+model Questions {
+  id      Int    @id @default(autoincrement())
+  question String
+
+  choices Choices[]
+
+  @@map("Questions")
+}
+
+model Choices {
+  id          Int @id @default(autoincrement())
+  question_id Int
+  choice_text String
+  score       Int
+
+  question    Questions @relation(fields: [question_id], references: [id], onDelete: Cascade)
+
+  @@map("Choices")
+}
+
+model TestQuestions {
+  id          Int    @id @default(autoincrement())
+  question    String
+  course_type String? @db.VarChar(25)
+  course_id   Int
+
+  choices     TestChoices[]
+
+  @@map("TestQuestions")
+}
+
+model TestChoices {
+  id          Int     @id @default(autoincrement())
+  question_id Int
+  choice_text String
+  correct     Boolean @default(false)
+
+  question    TestQuestions @relation(fields: [question_id], references: [id], onDelete: Cascade)
+
+  @@map("TestChoices")
+}
+
+model UserTestScores {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  course_type String   @db.VarChar(25)
+  course_id   Int
+  score       Int      @default(0)
+  taken_at    DateTime @default(now())
+
+  user        Users @relation(fields: [user_id], references: [id])
+
+  @@map("UserTestScores")
 }
