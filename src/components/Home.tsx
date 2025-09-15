@@ -10,7 +10,7 @@ type Video = {
   description: string;
   time: string;
   creator: string;
-  tag?: string;
+  tag: string[] | null;
   link: string;
 };
 
@@ -20,8 +20,8 @@ type Article = {
   description: string;
   time: string;
   author: string;
-  image: Buffer | string | null;
-  tag: string[] | string | null;
+  image: string | null;
+  tag: string[] | null;
   link: string;
   objective: string;
   target: string;
@@ -34,9 +34,15 @@ type CaseStudies = {
   description: string;
   time: string;
   author: string;
-  image: Buffer | string | null; // Can be BLOB from database
-  tag: string[] | string | null;
+  image: string | null;
+  tag: string[] | null;
   link: string;
+};
+
+type User = {
+  id: number;
+  username: string;
+  quiz_score: number;
 };
 
 const HomePage: React.FC = () => {
@@ -46,26 +52,51 @@ const HomePage: React.FC = () => {
   const [caseStudies, setCaseStudies] = useState<CaseStudies[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const storedUserId = sessionStorage.getItem("userId");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [user, setUser] = useState<User | null>(null);
 
   const handleVideoSelect = (videoId: number) => {
     sessionStorage.setItem("currentVideoId", JSON.stringify(videoId));
     navigate("/videoPage");
   };
 
-  const handleArticleSelect = (articleId: number) => {
+  const handleArticleSelect = async (articleId: number) => {
     sessionStorage.setItem("currentArticleId", JSON.stringify(articleId));
-    navigate("/articlePage");
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/addArticleToHistory/${storedUserId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ articleId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to update history: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("History updated:", data);
+
+      navigate("/articlePage");
+    } catch (error) {
+      console.error("Error adding to history:", error);
+    }
   };
 
   const handleCaseStudySelect = (caseStudyId: number) => {
     sessionStorage.setItem("currentCaseStudyId", JSON.stringify(caseStudyId));
-    // navigate("/caseStudyPage");
   };
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await fetch('http://localhost:3001/getAllVideos');
+        const res = await fetch("http://localhost:3001/getAllVideos");
         if (!res.ok) throw new Error("Failed to load videos");
         const data: Video[] = await res.json();
 
@@ -97,11 +128,9 @@ const HomePage: React.FC = () => {
 
     const fetchCaseStudy = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:3001/getAllCaseStudy"
-        );
+        const response = await fetch("http://localhost:3001/getAllCaseStudy");
         const data = await response.json();
-        setCaseStudies(data);
+        setCaseStudies(data.slice(0, 3));
       } catch (error) {
         console.error("Error fetching CaseStudies:", error);
       } finally {
@@ -110,63 +139,85 @@ const HomePage: React.FC = () => {
     };
 
     fetchCaseStudy();
+
+    const fetchUser = async () => {
+      try {
+        if (!storedUserId) return;
+
+        const res = await fetch(
+          `http://localhost:3001/getUserById/${storedUserId}`
+        );
+        if (!res.ok) {
+          throw new Error("ไม่สามารถโหลดผู้ใช้ได้");
+        }
+
+        const data: User = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    };
+
+    fetchUser();
   }, []);
 
-  const processTags = (tag: string[] | string | null | undefined): string[] => {
-    let tags: string[] = [];
-    
-    if (Array.isArray(tag)) {
-      tags = tag.filter(Boolean);
-    } else if (typeof tag === "string" && tag) {
-      const rawTag = tag;
-      if (rawTag.startsWith("{") && rawTag.endsWith("}")) {
-        tags = rawTag
-          .slice(1, -1) 
-          .split(",")
-          .map((t) => t.trim().replace(/"/g, "")) 
-          .filter(Boolean);
-      } else {
-        tags = rawTag
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean);
-      }
-    }
-    
-    return tags;
+  const hasValidTags = (tag: string[] | null) => {
+    if (!tag) return false;
+    if (Array.isArray(tag))
+      return tag.length > 0 && tag.some((t) => t.trim() !== "");
+    if (typeof tag === "object" && Object.keys(tag).length === 0) return false;
+    return false;
   };
 
-  
+  const processTags = (tag: string[] | null) => {
+    if (!hasValidTags(tag)) return [];
+    return Array.isArray(tag) ? tag.slice(0, 2) : [];
+  };
+
+  const handleQuizClick = () => {
+    if (!user) return;
+    if (user.quiz_score === 0) {
+      navigate("/quizPage");
+    } else {
+      navigate("/quizResultPage");
+    }
+  };
+
   return (
-    <div className="flex min-h-screen font-sans">
-      {/* Main Content */}
-      <div className="flex-1 bg-gray-50">
-        {/* Header */}
-        <Header />
+    <div className="min-h-screen font-sans">
+      {/* Header */}
+      <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-        <div className="flex min-h-screen">
+      {/* Main Layout */}
+      <div className="flex">
+        {/* Sidebar */}
+        <div className=" min-h-screen">
           <SideBar />
+        </div>
 
-          <div className="flex flex-col">
-            {/* Hero Section */}
-            <section className="flex justify-center">
-              <div className="w-full overflow-hidden">
-                <img
-                  src="/images/home.jpg"
-                  alt="คุณเหมาะกับหลักสูตรไหน"
-                  className="rounded-md shadow-md w-full"
-                />
-              </div>
-            </section>
+        {/* Main Content */}
+        <div className="flex-1 bg-gray-50">
+          {/* Hero Section */}
+          <section className="w-full">
+            <div className="w-full overflow-hidden">
+              <img
+                src="/images/homemd.jpg"
+                alt="คุณเป็นนักลงทุนแบบไหน"
+                onClick={handleQuizClick}
+                className="shadow-md w-full cursor-pointer"
+              />
+            </div>
+          </section>
 
+          {/* Content Container */}
+          <div className="px-20">
             {/* Video Cards */}
-            <h1 className="ml-20 my-4 font-bold text-2xl">วีดีโอทั้งหมด</h1>
-            <div className="flex flex-col items-center justify-center">
-            <section className="pb-6 border-b-2 border-black w-[65rem]">
+            <h1 className="my-4 font-bold text-2xl">วิดีโอทั้งหมด</h1>
+            <section className="pb-6 border-b-2 border-black">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {videos.map((video) => {
                   const tags = processTags(video.tag);
-                  
+
                   return (
                     <a
                       key={video.id}
@@ -180,7 +231,6 @@ const HomePage: React.FC = () => {
                           className="w-full h-48 object-cover"
                           src={video.link}
                           title={video.title}
-                          // allowFullScreen
                         />
                       </div>
 
@@ -188,7 +238,7 @@ const HomePage: React.FC = () => {
                         <h3 className="font-bold text-lg mb-3 text-gray-900 line-clamp-2">
                           {video.title}
                         </h3>
-                        
+
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Clock className="h-4 w-4" />
@@ -197,7 +247,7 @@ const HomePage: React.FC = () => {
                           {tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               {tags.map((tag, index) => (
-                                <span 
+                                <span
                                   key={index}
                                   className="bg-orange-400 text-white px-3 py-1 rounded-full text-xs font-medium"
                                 >
@@ -213,26 +263,24 @@ const HomePage: React.FC = () => {
                 })}
               </div>
               <div className="text-right mt-4">
-                <button 
+                <button
                   className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
                   onClick={() => {
-                    navigate("/videoMain")
+                    navigate("/videoMain");
                   }}
                 >
                   ดูวีดีโอทั้งหมด &gt;
                 </button>
               </div>
             </section>
-            </div>
 
             {/* Article Cards */}
-            <h1 className="ml-20 my-4 font-bold text-2xl">บทความทั้งหมด</h1>
-            <div className="flex flex-col items-center justify-center">
-            <section className="pb-6 border-b-2 border-black w-[65rem]">
+            <h1 className="my-4 font-bold text-2xl">บทความทั้งหมด</h1>
+            <section className="pb-6 border-b-2 border-black">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {articles.map((article) => {
                   const tags = processTags(article.tag);
-                  
+
                   return (
                     <a
                       key={article.id}
@@ -245,13 +293,11 @@ const HomePage: React.FC = () => {
                         <img
                           src={
                             article.image
-                              ? `data:image/jpeg;base64,${Buffer.from(
-                                  article.image
-                                ).toString("base64")}`
+                              ? `data:image/jpeg;base64,${article.image}`
                               : "/images/com.jpg"
                           }
                           alt={article.title}
-                          className="w-full h-408 object-cover"
+                          className="w-full h-48 object-cover overflow-hidden"
                         />
                       </div>
 
@@ -259,7 +305,7 @@ const HomePage: React.FC = () => {
                         <h3 className="font-bold text-lg mb-3 text-gray-900 line-clamp-2">
                           {article.title}
                         </h3>
-                        
+
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Clock className="h-4 w-4" />
@@ -268,7 +314,7 @@ const HomePage: React.FC = () => {
                           {tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               {tags.map((tag, index) => (
-                                <span 
+                                <span
                                   key={index}
                                   className="bg-orange-400 text-white px-3 py-1 rounded-full text-xs font-medium"
                                 >
@@ -284,26 +330,24 @@ const HomePage: React.FC = () => {
                 })}
               </div>
               <div className="text-right mt-4">
-                <button 
+                <button
                   className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
                   onClick={() => {
-                    navigate("/articleMain")
+                    navigate("/articleMain");
                   }}
                 >
                   ดูบทความทั้งหมด &gt;
                 </button>
               </div>
             </section>
-            </div>
 
             {/* Case Cards */}
-            <h1 className="ml-20 my-4 font-bold text-2xl">Case Study</h1>
-            <div className="flex flex-col items-center justify-center">
-            <section className="pb-6 border-b-2 border-black w-[65rem]">
+            <h1 className="my-4 font-bold text-2xl">กรณีศึกษาทั้งหมด</h1>
+            <section className="pb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {caseStudies.map((caseStudy) => {
                   const tags = processTags(caseStudy.tag);
-                  
+
                   return (
                     <a
                       key={caseStudy.id}
@@ -316,13 +360,11 @@ const HomePage: React.FC = () => {
                         <img
                           src={
                             caseStudy.image
-                              ? `data:image/jpeg;base64,${Buffer.from(
-                                  caseStudy.image
-                              ).toString("base64")}`
+                              ? `data:image/jpeg;base64,${caseStudy.image}`
                               : "/images/com.jpg"
                           }
                           alt={caseStudy.title}
-                          className="w-full h-408 object-cover"
+                          className="w-full h-48 object-cover overflow-hidden"
                         />
                       </div>
 
@@ -330,7 +372,7 @@ const HomePage: React.FC = () => {
                         <h3 className="font-bold text-lg mb-3 text-gray-900 line-clamp-2">
                           {caseStudy.title}
                         </h3>
-                        
+
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Clock className="h-4 w-4" />
@@ -339,7 +381,7 @@ const HomePage: React.FC = () => {
                           {tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               {tags.map((tag, index) => (
-                                <span 
+                                <span
                                   key={index}
                                   className="bg-orange-400 text-white px-3 py-1 rounded-full text-xs font-medium"
                                 >
@@ -354,15 +396,15 @@ const HomePage: React.FC = () => {
                   );
                 })}
               </div>
-                <div className="text-right mt-4">
-                  <button className="bg-orange-400 hover:bg-orange-500 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
-                  onClick={() => navigate("/caseStudyMain")}>
-                    Case study ทั้งหมด &gt;
-                  </button>
+              <div className="text-right mt-4">
+                <button
+                  className="bg-orange-400 hover:bg-orange-500 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
+                  onClick={() => navigate("/caseStudyMain")}
+                >
+                  ดูกรณีศึกษาทั้งหมด &gt;
+                </button>
               </div>
             </section>
-            </div>
-
           </div>
         </div>
       </div>
@@ -370,4 +412,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;

@@ -40,8 +40,9 @@ export const Videos = sequelize.define('Videos', {
     allowNull: true,
   },
   tag: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true,
+    defaultValue: [],
   },
 }, {
   tableName: 'Videos',

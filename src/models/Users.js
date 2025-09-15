@@ -24,6 +24,44 @@ export const Users = sequelize.define('Users', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
   },
+  career: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  experience: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  email: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  image: {
+    type: DataTypes.BLOB,
+    allowNull: true,
+  },
+  article_history: {
+    type: DataTypes.ARRAY(DataTypes.INTEGER),
+    allowNull: true,
+  },
+  casestudy_history: {
+    type: DataTypes.ARRAY(DataTypes.INTEGER),
+    allowNull: true,
+  },
+  video_history: {
+    type: DataTypes.ARRAY(DataTypes.INTEGER),
+    allowNull: true,
+  },
+  quiz_score: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  test_score: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
 }, {
   tableName: 'Users', 
   timestamps: false,

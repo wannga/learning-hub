@@ -1,82 +1,86 @@
-import React, { useState } from "react";
-import { Search, Menu } from "lucide-react";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
-
-const vocabularyData = {
-  A: [
-    {
-      term: "Asset",
-      thai: "สินทรัพย์",
-      definition: "ทรัพย์สินที่มีมูลค่าและสามารถสร้างรายได้ในอนาคต",
-    },
-    {
-      term: "Arbitrage",
-      thai: "การเก็งกำไรโดยใช้ความแตกต่างราคา",
-      definition: "การซื้อขายหลักทรัพย์เพื่อหาผลกำไรจากความแตกต่างของราคา",
-    },
-    {
-      term: "Appreciation",
-      thai: "การเพิ่มมูลค่า",
-      definition: "การเพิ่มขึ้นของมูลค่าสินทรัพย์เมื่อเวลาผ่านไป",
-    },
-  ],
-  B: [
-    {
-      term: "Bear Market",
-      thai: "ตลาดหมี",
-      definition: "สภาวะตลาดที่ราคาหลักทรัพย์ลดลงอย่างต่อเนื่อง",
-    },
-    {
-      term: "Bond",
-      thai: "พันธบัตร",
-      definition: "หลักทรัพย์แสดงสิทธิเรียกร้องหนี้ที่ออกโดยรัฐบาลหรือเอกชน",
-    },
-    {
-      term: "Bull Market",
-      thai: "ตลาดวัว",
-      definition: "สภาวะตลาดที่ราคาหลักทรัพย์เพิ่มขึ้นอย่างต่อเนื่อง",
-    },
-  ],
-  C: [
-    {
-      term: "Capital Gain",
-      thai: "กำไรจากการขาย",
-      definition: "ผลกำไรที่ได้จากการขายสินทรัพย์ในราคาสูงกว่าราคาที่ซื้อ",
-    },
-    {
-      term: "Commission",
-      thai: "ค่าคอมมิชชั่น",
-      definition: "ค่าธรรมเนียมที่จ่ายให้นายหน้าสำหรับการซื้อขายหลักทรัพย์",
-    },
-  ],
-};
+import { useNavigate } from "@remix-run/react";
 
 const alphabetLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export default function VocabularyPage() {
+  const navigate = useNavigate();
+  const storedUserRole = sessionStorage.getItem("userRole") === "true";
   const [vocabSearchTerm, setVocabSearchTerm] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedLetter, setSelectedLetter] = useState("A");
+  const [vocabularyData, setVocabularyData] = useState<Record<string, any[]>>(
+    {}
+  );
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredVocabulary = vocabularyData[selectedLetter] || [];
+  useEffect(() => {
+    const fetchVocab = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/getAllVocab");
+        if (!res.ok) throw new Error("Failed to fetch vocabulary");
+        const data = await res.json();
+
+        const grouped: Record<string, any[]> = {};
+        data.forEach((item: any) => {
+          const firstLetter = item.vocab[0].toUpperCase();
+          if (!grouped[firstLetter]) grouped[firstLetter] = [];
+          grouped[firstLetter].push(item);
+        });
+
+        Object.keys(grouped).forEach((letter) => {
+          grouped[letter] = grouped[letter].sort(
+            (a, b) => a.vocab.localeCompare(b.vocab)
+          );
+        });
+
+        setVocabularyData(grouped);
+      } catch (err) {
+        console.error("Error fetching vocabs:", err);
+      }
+    };
+
+    fetchVocab();
+  }, []);
+
+  const filteredVocabulary =
+    vocabularyData[selectedLetter]?.filter((item) =>
+      item.vocab.toLowerCase().includes(vocabSearchTerm.toLowerCase()) || item.thai.includes(vocabSearchTerm)
+    ) || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-50">
       {/* Header */}
-      <Header />
-      
-      <div className="flex flex-row min-h-screen">
-        <SideBar />
+      <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+      <div className="flex flex-row">
+        <div className="min-h-screen">
+          <SideBar />
+        </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="w-full mx-20 px-6 py-8">
+          <div className="text-end mb-4">
+            {storedUserRole && (
+              <button
+                className="bg-[#0c7b6a] text-white p-2 rounded-md h-10 w-28"
+                onClick={() => navigate("/vocabularyCreate")}
+              >
+                เพิ่มคำศัพท์
+              </button>
+            )}
+          </div>
+
           {/* Hero Section */}
-          <div className="relative mb-8 rounded-2xl overflow-hidden">
+          <div className="relative mb-8 rounded-2xl overflow-hidden w-full">
             <div className="bg-gradient-to-r from-teal-600 to-green-600 p-12 text-white">
               <div className="absolute inset-0 bg-black bg-opacity-20"></div>
               <div className="relative z-10">
-                <div className="max-w-md mx-auto">
+                <div className="max-w-md mx-auto ">
                   <div className="relative">
                     <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                     <input
@@ -127,7 +131,7 @@ export default function VocabularyPage() {
                   className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100"
                 >
                   <h3 className="text-xl font-bold text-gray-800 mb-2">
-                    {item.term}
+                    {item.vocab}
                   </h3>
                   <p className="text-teal-600 font-medium mb-3">{item.thai}</p>
                   <p className="text-gray-600 text-sm leading-relaxed">

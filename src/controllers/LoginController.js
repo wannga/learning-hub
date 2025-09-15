@@ -1,75 +1,49 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { Users } from '../models/Users.js';
 
-class LoginController {
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
-  async login(body) {
+export const login = async (req, res) => {
     try {
-      const { username, password } = body;
+        const { username, password } = req.body;
 
-      if (!username || !password) {
-        return {
-          status: 400,
-          body: { message: 'Username and password are required' },
-        };
-      }
+        console.log('Received username:', username);
 
-      const user = await this.prisma.user.findFirst({
-        where: {
-          OR: [
-            { username: username },
-            { email: username },
-            { phone: username },
-          ],
-        },
-      });
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Username and password are required' });
+        }
 
-      if (!user) {
-        return {
-          status: 401,
-          body: { message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' },
-        };
-      }
+        const user = await Users.findOne({ where: { username } });
 
-      const passwordMatches = await bcrypt.compare(password, user.password);
+        if (!user) {
+            console.log('User not found for username:', username);
+            return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+        }
 
-      if (!passwordMatches) {
-        return {
-          status: 401,
-          body: { message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' },
-        };
-      }
+        const storedHashedPassword = user.getDataValue('password');
+        console.log('Stored username:', user.getDataValue('username'));
+       
+        const isPasswordValid = await bcrypt.compare(password, storedHashedPassword);
+        console.log('Password validation result:', isPasswordValid);
 
-      // Example: Replace this with real JWT if needed
-      const token = `mock-jwt-${Date.now()}`;
-      // const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+        }
 
-      return {
-        status: 200,
-        body: {
-          user: {
-            id: user.id,
-            username: user.username,
-          },
-          token,
-        },
-      };
+        const token = 'mock-real-jwt-token';
+
+        return res.status(200).json({
+            user: { 
+                id: user.getDataValue('id'), 
+                username: user.getDataValue('username'), 
+                is_admin: user.getDataValue('is_admin') 
+            },
+            token
+        });
     } catch (error) {
-      console.error('LoginController error:', error);
-
-      return {
-        status: 500,
-        body: { message: 'เกิดข้อผิดพลาดในฝั่งเซิร์ฟเวอร์' },
-      };
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'เกิดข้อผิดพลาดในฝั่งเซิร์ฟเวอร์' });
     }
-  }
+};
 
-  async disconnect() {
-    await this.prisma.$disconnect();
-  }
-}
-
-export { LoginController };
+export default {
+  login
+};

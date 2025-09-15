@@ -49,7 +49,7 @@ const Signup: React.FC = () => {
 
     if (hasError) return;
 
-    const signup_date = new Date().toISOString(); // or format like 'YYYY-MM-DD'
+    const signup_date = new Date().toISOString();
 
     try {
       const response = await fetch("http://localhost:3001/signup", {

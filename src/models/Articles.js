@@ -33,7 +33,7 @@ export const Articles = sequelize.define('Articles', {
     allowNull: true,
   },
   link: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   objective: {

@@ -53,8 +53,9 @@ const Login: React.FC = () => {
       if (!response.ok) {
         setGeneralError(data?.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
       } else if (data?.user && data?.token) {
-        sessionStorage.setItem("user_id", data.user.id);
+        sessionStorage.setItem("userId", data.user.id);
         sessionStorage.setItem("username", data.user.username);
+        sessionStorage.setItem("userRole", data.user.is_admin);
         sessionStorage.setItem("token", data.token);
 
         navigate("/home");
