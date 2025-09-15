@@ -27,7 +27,7 @@ const CourseDropdown = () => {
             }}
             className="cursor-pointer px-12 py-2 text-sm text-gray-600 hover:text-teal-600 transition-colors duration-200"
           >
-            video
+            วิดีโอ
           </div>
           <div
             onClick={() => {
@@ -45,7 +45,7 @@ const CourseDropdown = () => {
             }}
             className="cursor-pointer px-12 py-2 text-sm text-gray-600 hover:text-teal-600 transition-colors duration-200"
           >
-            case study
+            กรณีศึกษา
           </div>
         </div>
       )}

@@ -1,107 +1,101 @@
 import express from 'express';
 import cors from 'cors';
 import { Users } from './src/models/Users.js';
+import { Videos } from './src/models/Videos.js';
+import { CaseStudy } from './src/models/CaseStudy.js';
 import sequelize from './src/config/database.js';
 import VideosController from './src/controllers/VideosController.js';
 import ArticlesController from './src/controllers/ArticlesController.js';
 import CaseStudyController from './src/controllers/CaseStudyController.js';
+import VocabularyController from './src/controllers/VocabularyController.js';
+import UserController from './src/controllers/UserController.js';
+import { Buffer } from "buffer";
+import multer from 'multer';
+import sharp from 'sharp';
+import LoginController from './src/controllers/LoginController.js';
+import SignupController from './src/controllers/SignupController.js';
+import QuizController from './src/controllers/QuizController.js';
+import LogoutController from './src/controllers/LogoutController.js';
+import TestController from './src/controllers/TestController.js';
+import UserTestScoresController from './src/controllers/UserTestScoresController.js';
 
 const app = express();
-const port = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 app.use(express.json());
-
-app.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-
-        console.log('Received username:', username);
-        console.log('Received password:', password); 
-
-        if (!username || !password) {
-            return res.status(400).json({ message: 'Username and password are required' });
-        }
-
-        const user = await Users.findOne({ where: { username } });
-
-        if (!user) {
-            console.log('User not found for username:', username);
-            return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
-        }
-
-        const storedPassword = user.getDataValue('password');
-        console.log('Stored username:', user.getDataValue('username'));
-        console.log('Stored password:', storedPassword); 
-        console.log('Comparison result:', storedPassword === password);
-
-        if (storedPassword !== password) {
-            return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
-        }
-
-        const token = 'mock-real-jwt-token';
-
-        return res.status(200).json({
-            user: { id: user.getDataValue('id'), username: user.getDataValue('username') },
-            token
-        });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'เกิดข้อผิดพลาดในฝั่งเซิร์ฟเวอร์' });
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
     }
+  }
 });
 
-app.listen(port, async () => {
+app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected');
-    console.log(`✅ Express server running at http://localhost:${port}`);
+    console.log(`✅ Express server running at http://localhost:${PORT}`);
   } catch (err) {
     console.error('❌ Failed to connect to database:', err);
   }
 });
 
-app.post('/signup', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Username and password are required' });
-    }
-
-    const existingUser = await Users.findOne({ where: { username } });
-    if (existingUser) {
-      return res.status(409).json({ message: 'Username already exists' });
-    }
-
-    const newUser = await Users.create({
-      username,
-      password, // hash with bcrypt later
-      is_admin: false,
-      signup_date: new Date(),
-    });
-
-    return res.status(201).json({
-      message: 'User created successfully',
-      user: { id: newUser.id, username: newUser.username, signup_date: newUser.signup_date }
-    });
-  } catch (error) {
-    console.error('Signup error:', error);
-    res.status(500).json({ message: 'เกิดข้อผิดพลาดในฝั่งเซิร์ฟเวอร์' });
-  }
-});
-
-app.post('/logout', async (req, res) => {
-
-});
-
+app.post('/login', LoginController.login);
+app.post('/signup', SignupController.signup);
 app.get('/getAllVideos', VideosController.getAllVideos);
 app.get('/getVideo/:videoId', VideosController.getVideoById);
+app.post('/createVideo', VideosController.createVideo);
 app.get('/getAllArticles', ArticlesController.getAllArticles);
 app.get('/getAllArticlesBasic', ArticlesController.getAllArticlesBasic);
 app.get('/getArticle/:articleId', ArticlesController.getArticleById);
 app.get('/getArticleSections/:articleId', ArticlesController.getArticleSections);
+app.post('/createArticle', ArticlesController.createArticle);
+app.get('/getAllVocab', VocabularyController.getAllVocab);
+app.post('/createVocab', VocabularyController.createVocab);
+app.get('/getUserById/:userId', UserController.getUserById);
+app.get('/getUserArticleHistory/:userId', UserController.getUserArticleHistory);
+app.get('/getUserCaseStudyHistory/:userId', UserController.getUserCaseStudyHistory);
+app.get('/getUserVideoHistory/:userId', UserController.getUserVideoHistory);
+app.post('/addArticleToHistory/:userId', UserController.addArticleToHistory);
+app.post('/addCaseStudyToHistory/:userId', UserController.addCaseStudyToHistory);
+app.post('/addVideoToHistory/:userId', UserController.addVideoToHistory);
+app.get('/getTagStat/:userId', UserController.getTagStats);
+app.put('/editUserData/:userId', UserController.editUserData);
+app.put('/editUserImage/:userId', upload.single('image'), UserController.editUserImage);
+app.put('/updateQuizScore/:userId', UserController.updateQuizScore);
+app.get('/getQuiz', QuizController.getQuiz);
+app.post('/logout', LogoutController.logout);
 app.get('/getAllCaseStudy', CaseStudyController.getAllCaseStudy);
 app.get('/getCaseStudyById/:caseStudyId', CaseStudyController.getCaseStudyById);
+app.post('/createCaseStudy', upload.single('image'), CaseStudyController.createCaseStudy);
+app.get('/getTest', TestController.getTest);
+app.get('/getTestsForVideo/:videoId', TestController.getTestsForVideo);
+app.get('/getTestsForArticle/:articleId', TestController.getTestsForArticle);
+app.put('/saveTestScore/:userId', UserTestScoresController.saveTestScore);
+app.get('/getUserTestScore/:userId', UserTestScoresController.getUserTestScore);
+app.post('/createTest', TestController.createTest);
+
+app.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ message: 'File too large. Maximum size is 10MB.' });
+    }
+  }
+  return res.status(500).json({ message: 'Server error' });
+});
 
 //Run: node server.mjs

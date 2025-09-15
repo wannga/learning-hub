@@ -15,11 +15,26 @@ type Video = {
   level: string;
 };
 
+type UserTestScore = {
+  id: number;
+  course_type: string;
+  course_id: number;
+  score: number;
+};
+
 function VideoPage() {
   const navigate = useNavigate();
   const [video, setVideo] = useState<Video | null>(null);
   const [error, setError] = useState("");
   const storedVideoId = sessionStorage.getItem("currentVideoId");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const storedUserId = sessionStorage.getItem("userId");
+  const storedUserRole = sessionStorage.getItem("userRole") === "true";
+  const [userTestScore, setUserTestScore] = useState<UserTestScore | null>(
+    null
+  );
+  const type = "video";
 
   useEffect(() => {
     if (!storedVideoId) {
@@ -29,7 +44,9 @@ function VideoPage() {
 
     const fetchVideo = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/getVideo/${storedVideoId}`);
+        const res = await fetch(
+          `http://localhost:3001/getVideo/${storedVideoId}`
+        );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดวิดีโอได้");
         }
@@ -42,8 +59,54 @@ function VideoPage() {
       }
     };
 
+    const fetchUserTestScore = async () => {
+      try {
+        if (!storedUserId) {
+          console.warn("No userId found in sessionStorage");
+          return;
+        }
+
+        const res = await fetch(
+          `http://localhost:3001/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedVideoId}`
+        );
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          if (errorData.message?.includes("No test score")) {
+            setUserTestScore(null);
+            return;
+          }
+          throw new Error(
+            errorData.message || "ไม่สามารถโหลดคะแนนของผู้ใช้ได้"
+          );
+        }
+
+        const response = await res.json();
+
+        if (response.data) {
+          setUserTestScore(response.data);
+        } else {
+          setUserTestScore(null);
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "เกิดข้อผิดพลาด");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserTestScore();
     fetchVideo();
   }, [storedVideoId]);
+
+  const handleUserTest = () => {
+    if (!userTestScore) {
+      navigate(`/testPage?type=${type}&id=${storedVideoId}`);
+    } else {
+      navigate(`/testResultPage?type=${type}&id=${storedVideoId}`);
+    }
+  };
 
   if (error) {
     return <div className="p-8 text-red-500 font-semibold">{error}</div>;
@@ -57,10 +120,12 @@ function VideoPage() {
     <div className="flex h-auto bg-gray-50 min-h-screen">
       <div className="flex-1">
         {/* Header */}
-        <Header />
+        <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
         <div className="flex">
-          <SideBar />
+          <div className=" min-h-screen">
+            <SideBar />
+          </div>
 
           {/* Main Content */}
           <main className="p-6 w-11/12 space-y-6 overflow-auto">
@@ -99,12 +164,34 @@ function VideoPage() {
               </div>
 
               <div className="w-full text-right">
-                <button
-                  className="bg-[#0c7b6a] text-white p-2 rounded-md"
-                  onClick={() => navigate("/videoMain")}
-                >
-                  &lt; กลับไปหน้าหลัก
-                </button>
+                {storedUserRole && (
+                  <div className="mb-2">
+                    <button
+                      className="bg-[#2b4d92] hover:bg-[#3a5b9c] text-white p-2 rounded-md w-36"
+                      onClick={() => navigate(`/testCreate?type=${type}&id=${storedVideoId}`)}
+                    >
+                      เพิ่มแบบทดสอบ
+                    </button>
+                  </div>
+                )}
+
+                <div className="mb-2">
+                  <button
+                    className="bg-[#1c7d98] hover:bg-[#2d869f] text-white p-2 rounded-md cursor-pointer w-36"
+                    onClick={handleUserTest}
+                  >
+                    ทดสอบความเข้าใจ
+                  </button>
+                </div>
+
+                <div>
+                  <button
+                    className="bg-[#0c7b6a] hover:bg-[#218c7c] text-white p-2 rounded-md cursor-pointer w-36"
+                    onClick={() => navigate("/videoMain")}
+                  >
+                    &lt; กลับไปหน้าหลัก
+                  </button>
+                </div>
               </div>
             </div>
           </main>

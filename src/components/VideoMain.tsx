@@ -10,7 +10,7 @@ type Video = {
   description: string;
   time: string;
   creator: string;
-  tag?: string;
+  tag: string[] | null;
   link: string;
 };
 
@@ -18,10 +18,40 @@ export default function VideoMain() {
   const navigate = useNavigate();
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleVideoSelect = (videoId: number) => {
+  const storedUserRole = sessionStorage.getItem("userRole") === "true";
+  const storedUserId = sessionStorage.getItem("userId");
+
+  const handleVideoSelect = async (videoId: number) => {
     sessionStorage.setItem("currentVideoId", JSON.stringify(videoId));
-    navigate("/videoPage");
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/addVideoToHistory/${storedUserId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ videoId }),
+        }
+      );
+
+      if (!response.ok) throw new Error(`Failed: ${response.status}`);
+
+      navigate("/videoPage");
+    } catch (error) {
+      console.error("Error adding to history:", error);
+    }
+  };
+
+  const hasValidTags = (tag: string[] | null) => {
+    return Array.isArray(tag) && tag.some((t) => t.trim() !== "");
+  };
+
+  const getDisplayTags = (tag: string[] | null) => {
+    return hasValidTags(tag) ? tag!.slice(0, 2) : [];
   };
 
   useEffect(() => {
@@ -36,9 +66,29 @@ export default function VideoMain() {
         setLoading(false);
       }
     };
-
     fetchVideos();
   }, []);
+
+  const searchTags = searchTerm
+    .toLowerCase()
+    .split(/[\s,]+/)
+    .filter((tag) => tag.trim() !== "");
+
+  const filteredVideos = videos.filter((video) => {
+    if (searchTags.length === 0) return true;
+
+    const matchesTags =
+      video.tag &&
+      searchTags.every((st) =>
+        video.tag?.some((t) => t.toLowerCase().includes(st))
+      );
+
+    const matchesTitle = searchTags.every((st) =>
+      video.title.toLowerCase().includes(st)
+    );
+
+    return matchesTags || matchesTitle;
+  });
 
   if (loading) {
     return (
@@ -49,92 +99,81 @@ export default function VideoMain() {
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <main className="flex-1">
-        <Header />
+        <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <div className="flex flex-row">
-          <SideBar />
+          <div className="min-h-screen">
+            <SideBar />
+          </div>
           <section className="flex-1 p-8 bg-white">
             <div className="max-w-7xl mx-auto">
-              <h2 className="text-3xl font-bold mb-2 text-gray-900">
-                วีดีโอทั้งหมด
-              </h2>
-              <p className="text-gray-600 mb-2 text-base">
-                เรียนรู้แนวทางการลงทุน สร้างความมั่งคั่งให้กับชีวิตในระยะยาว
-              </p>
+              <div className="flex flex-row justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2 text-gray-900">
+                    วิดีโอทั้งหมด
+                  </h2>
+                  <p className="text-gray-600 mb-2 text-base">
+                    เรียนรู้แนวทางการลงทุน สร้างความมั่งคั่งให้กับชีวิตในระยะยาว
+                  </p>
+                </div>
+                {storedUserRole && (
+                  <button
+                    className="bg-[#0c7b6a] hover:bg-[#218c7c] text-white p-2 rounded-md h-10 w-28"
+                    onClick={() => navigate("/videoCreate")}
+                  >
+                    เพิ่มวิดีโอ
+                  </button>
+                )}
+              </div>
               <div className="border-t-[1px] border-gray-700 mb-6" />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {videos.map((video) => {
-                  let tags: string[] = [];
-                  if (Array.isArray(video.tag)) {
-                    tags = video.tag.filter(Boolean);
-                  } else if (typeof video.tag === "string" && video.tag) {
-                    const rawTag = video.tag;
-                    if (rawTag.startsWith("{") && rawTag.endsWith("}")) {
-                      tags = rawTag
-                        .slice(1, -1)
-                        .split(",")
-                        .map((t) => t.trim().replace(/"/g, ""))
-                        .filter(Boolean);
-                    } else {
-                      tags = rawTag
-                        .split(",")
-                        .map((t) => t.trim())
-                        .filter(Boolean);
-                    }
-                  }
-                  
-                  console.log("Full video object:", video);
-                  console.log("Video tags:", video.tag, "Processed tags:", tags);
-
-                  return (
-                    <a
-                      key={video.id}
-                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
-                      onClick={() => handleVideoSelect(video.id)}
-                    >
-                      <div className="relative">
-                        <iframe
-                          className="w-full h-[14rem]"
-                          src={video.link}
-                          title={video.title}
-                          allowFullScreen
-                        />
-                      </div>
-
-                      <div className="p-6">
-                        <h3 className="font-bold text-xl mb-2 text-gray-900 line-clamp-2">
-                          {video.title}
-                        </h3>
-                        <p className="text-gray-600 mb-2 text-sm leading-relaxed line-clamp-3">
-                          {video.description}
-                        </p>
-                        <div className="flex items-center space-x-4 text-sm font-normal mb-1">
-                          <div className="flex items-center space-x-1">
-                            <User className="h-4 w-4" />
-                            <span>{video.creator}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{video.time}</span>
-                          </div>
-                          {tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {tags.map((t, i) => (
-                                <span
-                                  key={i}
-                                  className="bg-orange-400 text-white px-3 py-1 rounded-full text-xs font-medium"
-                                >
-                                  {t}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                {filteredVideos.map((video) => (
+                  <a
+                    key={video.id}
+                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                    onClick={() => handleVideoSelect(video.id)}
+                  >
+                    <div className="relative">
+                      <iframe
+                        className="w-full h-[14rem]"
+                        src={video.link}
+                        title={video.title}
+                        allowFullScreen
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-bold text-xl mb-2 text-gray-900 line-clamp-2">
+                        {video.title}
+                      </h3>
+                      <p className="text-gray-600 mb-2 text-sm leading-relaxed line-clamp-3">
+                        {video.description}
+                      </p>
+                      <div className="flex items-center space-x-4 text-sm font-normal mb-1">
+                        <div className="flex items-center space-x-1">
+                          <User className="h-4 w-4" />
+                          <span>{video.creator}</span>
                         </div>
                       </div>
-                    </a>
-                  );
-                })}
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Clock className="h-4 w-4" />
+                          <span>{video.time}</span>
+                        </div>
+                        {hasValidTags(video.tag) && (
+                          <div className="flex gap-1">
+                            {getDisplayTags(video.tag).map((tag, index) => (
+                              <span
+                                key={index}
+                                className="bg-orange-400 text-white px-3 py-1 rounded-full text-xs font-medium"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </a>
+                ))}
               </div>
             </div>
           </section>
