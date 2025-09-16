@@ -31,7 +31,7 @@ export default function ArticlesMain() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/addArticleToHistory/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/addArticleToHistory/${storedUserId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -64,7 +64,7 @@ export default function ArticlesMain() {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3001/getAllArticlesBasic"
+          `${process.env.NEXT_PUBLIC_API_URL}/getAllArticlesBasic`
         );
         const data = await response.json();
         setArticles(data);

@@ -48,7 +48,7 @@ export default function ArticlesHistory() {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/getUserArticleHistory/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserArticleHistory/${storedUserId}`
         );
         
         if (!response.ok) {

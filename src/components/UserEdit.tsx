@@ -100,7 +100,7 @@ const UserEdit: React.FC = () => {
       formData.append("image", file);
 
       const response = await fetch(
-        `http://localhost:3001/editUserImage/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/editUserImage/${storedUserId}`,
         {
           method: "PUT",
           body: formData,
@@ -139,7 +139,7 @@ const UserEdit: React.FC = () => {
         }
 
         const res = await fetch(
-          `http://localhost:3001/getUserById/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");
@@ -173,7 +173,7 @@ const UserEdit: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/editUserData/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/editUserData/${storedUserId}`,
         {
           method: "PUT",
           headers: {
@@ -224,7 +224,7 @@ const UserEdit: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/editUserData/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/editUserData/${storedUserId}`,
         {
           method: "PUT",
           headers: {

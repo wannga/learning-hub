@@ -21,7 +21,7 @@ export default function VocabularyPage() {
   useEffect(() => {
     const fetchVocab = async () => {
       try {
-        const res = await fetch("http://localhost:3001/getAllVocab");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllVocab`);
         if (!res.ok) throw new Error("Failed to fetch vocabulary");
         const data = await res.json();
 

@@ -45,7 +45,7 @@ function VideoPage() {
     const fetchVideo = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3001/getVideo/${storedVideoId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getVideo/${storedVideoId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดวิดีโอได้");
@@ -67,7 +67,7 @@ function VideoPage() {
         }
 
         const res = await fetch(
-          `http://localhost:3001/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedVideoId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedVideoId}`
         );
 
         if (!res.ok) {

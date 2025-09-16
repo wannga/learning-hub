@@ -99,7 +99,7 @@ function CaseStudyCreate() {
         submitData.append('image', selectedFile);
       }
 
-      const response = await axios.post("http://localhost:3001/createCaseStudy", submitData, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/createCaseStudy`, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

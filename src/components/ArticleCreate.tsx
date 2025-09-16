@@ -112,7 +112,7 @@ export default function ArticleCreate() {
 
   const handleSectionChange = (index: number, key: string, value: any) => {
     const updatedSections = [...sections];
-    updatedSections[index][key] = value;
+    (updatedSections[index] as any)[key] = value;
     setSections(updatedSections);
   };
 
@@ -247,7 +247,7 @@ export default function ArticleCreate() {
         sections: `${payload.sections.length} sections`
       });
 
-      const response = await fetch('http://localhost:3001/createArticle', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/createArticle`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -101,7 +101,7 @@ function TestCreate() {
       };
 
       const response = await axios.post(
-        "http://localhost:3001/createTest",
+        `${process.env.NEXT_PUBLIC_API_URL}/createTest`,
         payload
       );
 

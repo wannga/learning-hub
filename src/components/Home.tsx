@@ -66,7 +66,7 @@ const Home: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/addArticleToHistory/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/addArticleToHistory/${storedUserId}`,
         {
           method: "POST",
           headers: {
@@ -96,7 +96,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await fetch("http://localhost:3001/getAllVideos");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllVideos`);
         if (!res.ok) throw new Error("Failed to load videos");
         const data: Video[] = await res.json();
 
@@ -112,7 +112,7 @@ const Home: React.FC = () => {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3001/getAllArticlesBasic"
+          `${process.env.NEXT_PUBLIC_API_URL}/getAllArticlesBasic`
         );
         const data = await response.json();
 
@@ -128,7 +128,7 @@ const Home: React.FC = () => {
 
     const fetchCaseStudy = async () => {
       try {
-        const response = await fetch("http://localhost:3001/getAllCaseStudy");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllCaseStudy`);
         const data = await response.json();
         setCaseStudies(data.slice(0, 3));
       } catch (error) {
@@ -145,7 +145,7 @@ const Home: React.FC = () => {
         if (!storedUserId) return;
 
         const res = await fetch(
-          `http://localhost:3001/getUserById/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");

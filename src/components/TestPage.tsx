@@ -34,9 +34,9 @@ const TestPage: React.FC = () => {
       try {
         let url = "";
         if (type === "video") {
-          url = `http://localhost:3001/getTestsForVideo/${id}`;
+          url = `${process.env.NEXT_PUBLIC_API_URL}/getTestsForVideo/${id}`;
         } else if (type === "article") {
-          url = `http://localhost:3001/getTestsForArticle/${id}`;
+          url = `${process.env.NEXT_PUBLIC_API_URL}/getTestsForArticle/${id}`;
         }
 
         if (!url) return;
@@ -91,7 +91,7 @@ const TestPage: React.FC = () => {
         totalQuestions > 0 ? (test_score / totalQuestions) * 100 : 0;
 
       const response = await fetch(
-        `http://localhost:3001/saveTestScore/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/saveTestScore/${storedUserId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

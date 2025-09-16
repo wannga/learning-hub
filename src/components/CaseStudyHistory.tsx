@@ -28,7 +28,7 @@ export default function CaseStudyHistory() {
   useEffect(() => {
     const fetchCaseStudy = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/getUserCaseStudyHistory/${storedUserId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getUserCaseStudyHistory/${storedUserId}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

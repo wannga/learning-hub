@@ -79,7 +79,7 @@ const TestResultPage: React.FC = () => {
         }
 
         const res = await fetch(
-          `http://localhost:3001/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${id}`
         );
 
         if (!res.ok) {

@@ -38,7 +38,7 @@ function VocabularyCreate() {
 
     console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
-    const response = await axios.post("http://localhost:3001/createVocab", requestBody, {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/createVocab`, requestBody, {
       headers: {
         'Content-Type': 'application/json',
       },

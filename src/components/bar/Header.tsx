@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("http://localhost:3001/logout", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
         method: "POST",
         credentials: "include",
       });

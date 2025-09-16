@@ -52,7 +52,7 @@ const Signup: React.FC = () => {
     const signup_date = new Date().toISOString();
 
     try {
-      const response = await fetch("http://localhost:3001/signup", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

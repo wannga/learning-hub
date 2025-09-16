@@ -23,7 +23,7 @@ function SideBar() {
         if (!storedUserId) return;
 
         const res = await fetch(
-          `http://localhost:3001/getUserById/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");

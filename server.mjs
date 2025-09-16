@@ -17,12 +17,24 @@ import UserTestScoresController from './src/controllers/UserTestScoresController
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL, 'https://learning-hub-14u9.vercel.app'] 
-    : "http://localhost:3000",
-  credentials: true
-}));
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://learning-hub-14u9.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"), false);
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.json({ limit: '1mb' }));

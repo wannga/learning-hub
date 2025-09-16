@@ -28,7 +28,7 @@ export default function CaseStudyMain() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/addCaseStudyToHistory/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/addCaseStudyToHistory/${storedUserId}`,
         {
           method: "POST",
           headers: {
@@ -65,7 +65,7 @@ export default function CaseStudyMain() {
   useEffect(() => {
     const fetchCaseStudy = async () => {
       try {
-        const response = await fetch("http://localhost:3001/getAllCaseStudy");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllCaseStudy`);
         const data = await response.json();
         setCaseStudies(data);
       } catch (error) {

@@ -60,7 +60,7 @@ const ArticlePage = () => {
     const fetchArticle = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3001/getArticle/${storedArticleId}`
+          `https://learning-hub-1v0k.onrender.com/getArticle/${storedArticleId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดบทความได้");
@@ -85,7 +85,7 @@ const ArticlePage = () => {
         }
 
         const res = await fetch(
-          `http://localhost:3001/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedArticleId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedArticleId}`
         );
 
         if (!res.ok) {

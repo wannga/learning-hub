@@ -26,7 +26,7 @@ const QuizPage: React.FC = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch("http://localhost:3001/getQuiz");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getQuiz`);
         const data = await res.json();
         console.log("Fetched quiz data:", data);
         const sortedData = data.sort((a: Question, b: Question) => a.id - b.id);
@@ -66,7 +66,7 @@ const QuizPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/updateQuizScore/${storedUserId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/updateQuizScore/${storedUserId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -60,7 +60,7 @@ function VideoCreate() {
 
     console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
-    const response = await axios.post("http://localhost:3001/createVideo", requestBody, {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/createVideo`, requestBody, {
       headers: {
         'Content-Type': 'application/json',
       },

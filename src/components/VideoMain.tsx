@@ -57,7 +57,7 @@ export default function VideoMain() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch("http://localhost:3001/getAllVideos");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllVideos`);
         const data = await response.json();
         setVideos(data);
       } catch (error) {

@@ -145,7 +145,7 @@ const UserProfile: React.FC = () => {
         }
 
         const res = await fetch(
-          `http://localhost:3001/getUserById/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");
@@ -169,7 +169,7 @@ const UserProfile: React.FC = () => {
     const fetchVideos = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3001/getUserVideoHistory/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserVideoHistory/${storedUserId}`
         );
         if (!res.ok) throw new Error("Failed to load videos");
         const data = await res.json();
@@ -187,7 +187,7 @@ const UserProfile: React.FC = () => {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/getUserArticleHistory/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserArticleHistory/${storedUserId}`
         );
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -205,7 +205,7 @@ const UserProfile: React.FC = () => {
     const fetchCaseStudy = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/getUserCaseStudyHistory/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserCaseStudyHistory/${storedUserId}`
         );
         const data = await response.json();
         if (Array.isArray(data)) {

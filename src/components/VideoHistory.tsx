@@ -31,7 +31,7 @@ export default function VideoHistory() {
     const fetchVideos = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/getUserVideoHistory/${storedUserId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getUserVideoHistory/${storedUserId}`
         );
 
         if (!response.ok) {
