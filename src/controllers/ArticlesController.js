@@ -152,10 +152,7 @@ export const getArticleSections = async (req, res) => {
 };
 
 export const createArticle = async (req, res) => {
-  console.log('=== CREATE ARTICLE REQUEST ===');
-  console.log('Headers:', req.headers);
-  console.log('Body keys:', Object.keys(req.body || {}));
-  
+ 
   try {
     const {
       title,
@@ -171,14 +168,6 @@ export const createArticle = async (req, res) => {
       infoBox,
       sections,
     } = req.body;
-
-    console.log('Extracted fields:', {
-      title: title || 'MISSING',
-      description: description || 'MISSING',
-      author: author || 'MISSING',
-      hasImage: !!image,
-      imageLength: image ? image.length : 0
-    });
 
     if (!title || !description || !author) {
       return res.status(400).json({ message: 'Please fill in all required fields' });
@@ -196,7 +185,6 @@ export const createArticle = async (req, res) => {
     
     if (image && typeof image === 'string') {
       try {
-        console.log('Processing image...');
         let base64Data = image;
         let mimeType = 'image/jpeg'; //default
 
@@ -210,7 +198,6 @@ export const createArticle = async (req, res) => {
           imageError = 'Invalid image format. Please upload a valid image file.';
         } else {
           imageBuffer = Buffer.from(base64Data, 'base64');
-          console.log('Image buffer size:', imageBuffer.length, 'bytes');
         }
 
         const maxBufferSize = 10 * 1024 * 1024; // 10MB
@@ -226,7 +213,6 @@ export const createArticle = async (req, res) => {
     }
     
     if (imageError) {
-      console.log('Image error:', imageError);
       return res.status(400).json({ message: imageError });
     }
 
@@ -243,9 +229,6 @@ export const createArticle = async (req, res) => {
     } else if (typeof infoBox === 'string' && infoBox.trim()) {
       formattedInfoBox = infoBox.split(',').map((i) => i.trim()).filter(Boolean);
     }
-
-    console.log('Creating article...');
-    console.log('Image buffer size:', imageBuffer ? imageBuffer.length : 0);
 
     let articleData = {
       title: title.trim(),
@@ -264,16 +247,9 @@ export const createArticle = async (req, res) => {
       articleData.image = imageBuffer;
     }
 
-    console.log('Article data prepared:', {
-      ...articleData,
-      image: imageBuffer ? `Buffer(${imageBuffer.length} bytes)` : null
-    });
-
     const newArticle = await Articles.create(articleData);
-    console.log('Article created successfully, ID:', newArticle.id);
 
     if (Array.isArray(sections) && sections.length > 0 && typeof ArticleSections !== 'undefined') {
-      console.log(`Processing ${sections.length} sections...`);
       
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
@@ -287,7 +263,6 @@ export const createArticle = async (req, res) => {
               table_headers: Array.isArray(section.table_headers) ? section.table_headers.filter(Boolean) : [],
               table_rows: Array.isArray(section.table_rows) ? section.table_rows.filter(row => Array.isArray(row) && row.some(Boolean)) : [],
             });
-            console.log(`Section ${i + 1} created successfully`);
           } catch (sectionError) {
             console.error(`Error creating section ${i + 1}:`, sectionError);
           }

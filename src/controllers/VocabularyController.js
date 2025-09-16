@@ -35,8 +35,6 @@ export const createVocab = async (req, res) => {
       definition,
     };
 
-    console.log("Creating vocabulary with data:", JSON.stringify(vocabData, null, 2));
-
     const newVocab = await Vocabulary.create(vocabData);
 
     return res.status(201).json({

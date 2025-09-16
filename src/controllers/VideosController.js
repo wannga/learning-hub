@@ -44,12 +44,6 @@ export const createVideo = async (req, res) => {
       return res.status(409).json({ message: 'This video title already exists' });
     }
 
-    console.log("Raw tag from client:", tag);
-    console.log("Tag type:", typeof tag);
-    console.log("Is Array:", Array.isArray(tag));
-    console.log("Tag constructor:", tag?.constructor?.name);
-    console.log("Tag JSON:", JSON.stringify(tag));
-
     let formattedTag = null;
     
     if (tag) {
@@ -68,11 +62,6 @@ export const createVideo = async (req, res) => {
       formattedTag = [];
     }
 
-    console.log("Final formattedTag:", formattedTag);
-    console.log("Final formattedTag type:", Array.isArray(formattedTag));
-    console.log("Final formattedTag length:", formattedTag.length);
-    console.log("Final formattedTag JSON:", JSON.stringify(formattedTag));
-
     const videoData = {
       title,
       description,
@@ -87,8 +76,6 @@ export const createVideo = async (req, res) => {
     if (formattedTag.length > 0) {
       videoData.tag = formattedTag;
     }
-
-    console.log("Creating video with data:", JSON.stringify(videoData, null, 2));
 
     const newVideo = await Videos.create(videoData);
 

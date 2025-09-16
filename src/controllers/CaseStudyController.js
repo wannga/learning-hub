@@ -41,7 +41,6 @@ export const createCaseStudy = async (req, res) => {
     const { title, description, time, author, tag, link } = req.body;
 
     if (!title || !description || !time || !author || !link) {
-      console.log('Validation failed - missing required fields');
       return res.status(400).json({ 
         message: 'Please fill in all required fields',
         missing: {
@@ -56,7 +55,6 @@ export const createCaseStudy = async (req, res) => {
     }
 
     if (typeof CaseStudy === 'undefined') {
-      console.log('CaseStudy model is not defined!');
       return res.status(500).json({ message: 'Server configuration error - CaseStudy model not found' });
     }
 

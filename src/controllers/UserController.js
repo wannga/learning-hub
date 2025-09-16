@@ -140,20 +140,9 @@ export const editUserImage = async (req, res) => {
     user.image = req.file.buffer;
     await user.save();
 
-    console.log("Backend - Stored buffer length:", req.file.buffer.length);
-
     const { password, ...userWithoutPassword } = user.toJSON();
 
     userWithoutPassword.image = req.file.buffer.toString("base64");
-
-    console.log(
-      "Backend - Base64 response length:",
-      userWithoutPassword.image.length
-    );
-    console.log(
-      "Backend - Base64 preview:",
-      userWithoutPassword.image.substring(0, 50)
-    );
 
     res.status(200).json({
       message: "Image updated successfully",
