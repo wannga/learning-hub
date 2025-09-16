@@ -108,10 +108,8 @@ app.use((error, req, res, next) => {
   return res.status(500).json({ message: 'Server error' });
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`✅ Express server running at http://localhost:${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`✅ Express server running on port ${PORT}`);
+});
 
 export default app;
