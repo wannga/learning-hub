@@ -3,6 +3,7 @@ import Header from "./bar/Header.tsx";
 import SideBar from "./bar/Sidebar.tsx";
 import { useNavigate } from "@remix-run/react";
 import axios from "axios";
+import { API_CONFIG } from "./../config/api.js";
 
 function VideoCreate() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ function VideoCreate() {
 
     console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/createVideo`, requestBody, {
+    const response = await axios.post(`${API_CONFIG.BASE_URL}/createVideo`, requestBody, {
       headers: {
         'Content-Type': 'application/json',
       },

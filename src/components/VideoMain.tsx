@@ -3,6 +3,7 @@ import SideBar from "./bar/Sidebar.tsx";
 import { Clock, User } from "lucide-react";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type Video = {
   id: number;
@@ -27,16 +28,13 @@ export default function VideoMain() {
     sessionStorage.setItem("currentVideoId", JSON.stringify(videoId));
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/addVideoToHistory/${storedUserId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ videoId }),
-        }
-      );
+      const response = await fetch(`${API_CONFIG.BASE_URL}/${storedUserId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ videoId }),
+      });
 
       if (!response.ok) throw new Error(`Failed: ${response.status}`);
 
@@ -57,7 +55,7 @@ export default function VideoMain() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllVideos`);
+        const response = await fetch(`${API_CONFIG.BASE_URL}/getAllVideos`);
         const data = await response.json();
         setVideos(data);
       } catch (error) {
@@ -125,26 +123,26 @@ export default function VideoMain() {
                 )}
               </div>
               <div className="border-t-[1px] border-gray-700 mb-6" />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                 {filteredVideos.map((video) => (
                   <button
                     key={video.id}
-                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer block"
+                    className="flex flex-col bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full"
                     onClick={() => handleVideoSelect(video.id)}
                   >
-                    <div className="relative">
+                    <div className="relative aspect-video">
                       <iframe
-                        className="w-full h-[14rem]"
+                        className="absolute top-0 left-0 w-full h-full"
                         src={video.link}
                         title={video.title}
                         allowFullScreen
                       />
                     </div>
                     <div className="p-6">
-                      <h3 className="font-bold text-xl mb-2 text-gray-900 line-clamp-2">
+                      <h3 className="font-bold text-xl mb-2 text-gray-900 line-clamp-2 text-start">
                         {video.title}
                       </h3>
-                      <p className="text-gray-600 mb-2 text-sm leading-relaxed line-clamp-3">
+                      <p className="text-gray-600 mb-2 text-sm leading-relaxed line-clamp-3 text-start">
                         {video.description}
                       </p>
                       <div className="flex items-center space-x-4 text-sm font-normal mb-1">

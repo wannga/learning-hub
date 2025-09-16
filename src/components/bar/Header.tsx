@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import React from "react";
 import { useNavigate } from "@remix-run/react";
 import { MdMenuBook } from "react-icons/md";
+import { API_CONFIG } from "../../config/api.js";
 
 type HeaderProps = {
   searchTerm: string;
@@ -13,7 +14,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
+      const res = await fetch(`${API_CONFIG.BASE_URL}/logout`, {
         method: "POST",
         credentials: "include",
       });

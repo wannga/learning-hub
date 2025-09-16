@@ -3,6 +3,7 @@ import Header from "./bar/Header.tsx";
 import SideBar from "./bar/Sidebar.tsx";
 import { useNavigate } from "@remix-run/react";
 import axios from "axios";
+import { API_CONFIG } from "./../config/api.js";
 
 function CaseStudyCreate() {
   const navigate = useNavigate();
@@ -99,7 +100,7 @@ function CaseStudyCreate() {
         submitData.append('image', selectedFile);
       }
 
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/createCaseStudy`, submitData, {
+      const response = await axios.post(`${API_CONFIG.BASE_URL}/createCaseStudy`, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

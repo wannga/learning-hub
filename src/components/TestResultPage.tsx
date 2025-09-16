@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { useNavigate, useLocation } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type Grade = {
   name: string;
@@ -79,7 +80,7 @@ const TestResultPage: React.FC = () => {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${id}`
+          `${API_CONFIG.BASE_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${id}`
         );
 
         if (!res.ok) {

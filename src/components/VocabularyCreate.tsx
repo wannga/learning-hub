@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import Header from "./bar/Header.tsx";
 import SideBar from "./bar/Sidebar.tsx";
-import { useNavigate } from "@remix-run/react";
 import axios from "axios";
+import { API_CONFIG } from "./../config/api.js";
 
 function VocabularyCreate() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     vocab: "",
     thai: "",
@@ -38,7 +37,7 @@ function VocabularyCreate() {
 
     console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/createVocab`, requestBody, {
+    const response = await axios.post(`${API_CONFIG.BASE_URL}/createVocab`, requestBody, {
       headers: {
         'Content-Type': 'application/json',
       },

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "@remix-run/react";
 import Header from "./bar/Header.tsx";
 import SideBar from "./bar/Sidebar.tsx";
+import { API_CONFIG } from "./../config/api.js";
 
 type ArticleSection = {
   id: number;
@@ -85,7 +86,7 @@ const ArticlePage = () => {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedArticleId}`
+          `${API_CONFIG.BASE_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedArticleId}`
         );
 
         if (!res.ok) {

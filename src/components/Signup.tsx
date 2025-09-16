@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const Signup: React.FC = () => {
     const signup_date = new Date().toISOString();
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -83,7 +84,7 @@ const Signup: React.FC = () => {
   return (
     <div className="min-h-screen items-center bg-[#e7f1fa] rounded-lg shadow-lg flex flex-row w-full">
       <div className="flex items-center justify-center w-7/12">
-        <span className="text-4xl font-bold text-gray-400">LOGO</span>
+        <span className="text-4xl font-bold text-gray-400">LEARNING HUB</span>
       </div>
 
       <div className="flex flex-col items-center w-3/12">

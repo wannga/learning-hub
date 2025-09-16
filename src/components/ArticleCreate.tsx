@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import Header from "./bar/Header.tsx";
 import SideBar from "./bar/Sidebar.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 interface Article {
   title: string;
@@ -247,7 +248,7 @@ export default function ArticleCreate() {
         sections: `${payload.sections.length} sections`
       });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/createArticle`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/createArticle`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

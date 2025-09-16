@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { useNavigate, useLocation } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type TestChoice = {
   id: number;
@@ -34,9 +35,9 @@ const TestPage: React.FC = () => {
       try {
         let url = "";
         if (type === "video") {
-          url = `${process.env.NEXT_PUBLIC_API_URL}/getTestsForVideo/${id}`;
+          url = `${API_CONFIG.BASE_URL}/getTestsForVideo/${id}`;
         } else if (type === "article") {
-          url = `${process.env.NEXT_PUBLIC_API_URL}/getTestsForArticle/${id}`;
+          url = `${API_CONFIG.BASE_URL}/getTestsForArticle/${id}`;
         }
 
         if (!url) return;
@@ -91,7 +92,7 @@ const TestPage: React.FC = () => {
         totalQuestions > 0 ? (test_score / totalQuestions) * 100 : 0;
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/saveTestScore/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/saveTestScore/${storedUserId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

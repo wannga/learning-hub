@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import { Clock, User } from "lucide-react";
 import Header from "./bar/Header.tsx";
+import { API_CONFIG } from "./../config/api.js";
 
 type CaseStudies = {
   id: number;
@@ -28,7 +29,7 @@ export default function CaseStudyHistory() {
   useEffect(() => {
     const fetchCaseStudy = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getUserCaseStudyHistory/${storedUserId}`);
+        const response = await fetch(`${API_CONFIG.BASE_URL}/getUserCaseStudyHistory/${storedUserId}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

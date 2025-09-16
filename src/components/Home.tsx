@@ -3,6 +3,7 @@ import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { Clock } from "lucide-react";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type Video = {
   id: number;
@@ -66,7 +67,7 @@ const Home: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/addArticleToHistory/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/addArticleToHistory/${storedUserId}`,
         {
           method: "POST",
           headers: {
@@ -96,7 +97,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllVideos`);
+        const res = await fetch(`${API_CONFIG.BASE_URL}/getAllVideos`);
         if (!res.ok) throw new Error("Failed to load videos");
         const data: Video[] = await res.json();
 
@@ -112,7 +113,7 @@ const Home: React.FC = () => {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getAllArticlesBasic`
+          `${API_CONFIG.BASE_URL}/getAllArticlesBasic`
         );
         const data = await response.json();
 
@@ -128,7 +129,7 @@ const Home: React.FC = () => {
 
     const fetchCaseStudy = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllCaseStudy`);
+        const response = await fetch(`${API_CONFIG.BASE_URL}/getAllCaseStudy`);
         const data = await response.json();
         setCaseStudies(data.slice(0, 3));
       } catch (error) {
@@ -145,7 +146,7 @@ const Home: React.FC = () => {
         if (!storedUserId) return;
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");

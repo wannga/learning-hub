@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 const alphabetLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
@@ -21,7 +22,7 @@ export default function VocabularyPage() {
   useEffect(() => {
     const fetchVocab = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllVocab`);
+        const res = await fetch(`${API_CONFIG.BASE_URL}/getAllVocab`);
         if (!res.ok) throw new Error("Failed to fetch vocabulary");
         const data = await res.json();
 

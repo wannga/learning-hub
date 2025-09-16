@@ -4,6 +4,7 @@ import Header from "./bar/Header.tsx";
 import { Clock } from "lucide-react";
 import { useNavigate } from "@remix-run/react";
 import UserTagsProgress from "./bar/UserTagsProgress.tsx";
+import { API_CONFIG } from "./../config/api.js";
 
 type Video = {
   id: number;
@@ -145,7 +146,7 @@ const UserProfile: React.FC = () => {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");
@@ -169,7 +170,7 @@ const UserProfile: React.FC = () => {
     const fetchVideos = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserVideoHistory/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserVideoHistory/${storedUserId}`
         );
         if (!res.ok) throw new Error("Failed to load videos");
         const data = await res.json();
@@ -187,7 +188,7 @@ const UserProfile: React.FC = () => {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserArticleHistory/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserArticleHistory/${storedUserId}`
         );
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -205,7 +206,7 @@ const UserProfile: React.FC = () => {
     const fetchCaseStudy = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserCaseStudyHistory/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserCaseStudyHistory/${storedUserId}`
         );
         const data = await response.json();
         if (Array.isArray(data)) {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { Pencil } from "lucide-react";
+import { API_CONFIG } from "./../config/api.js";
 
 type User = {
   id: number;
@@ -100,7 +101,7 @@ const UserEdit: React.FC = () => {
       formData.append("image", file);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/editUserImage/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/editUserImage/${storedUserId}`,
         {
           method: "PUT",
           body: formData,
@@ -139,7 +140,7 @@ const UserEdit: React.FC = () => {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");
@@ -173,7 +174,7 @@ const UserEdit: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/editUserData/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/editUserData/${storedUserId}`,
         {
           method: "PUT",
           headers: {
@@ -224,7 +225,7 @@ const UserEdit: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/editUserData/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/editUserData/${storedUserId}`,
         {
           method: "PUT",
           headers: {

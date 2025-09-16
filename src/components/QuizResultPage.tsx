@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type User = {
   id: number;
@@ -67,7 +68,7 @@ const QuizResultPage: React.FC = () => {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");

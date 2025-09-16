@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_CONFIG } from "../../config/api.js";
 
 interface UserTag {
   tag: string;
@@ -33,7 +34,7 @@ const UserTagsProgress: React.FC = () => {
 
         const userId = JSON.parse(storedUserId);
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getTagStat/${userId}`);
+        const response = await fetch(`${API_CONFIG.BASE_URL}/getTagStat/${userId}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch tag stats');

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type Video = {
   id: number;
@@ -45,7 +46,7 @@ function VideoPage() {
     const fetchVideo = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getVideo/${storedVideoId}`
+          `${API_CONFIG.BASE_URL}/getVideo/${storedVideoId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดวิดีโอได้");
@@ -67,7 +68,7 @@ function VideoPage() {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedVideoId}`
+          `${API_CONFIG.BASE_URL}/getUserTestScore/${storedUserId}?courseType=${type}&courseId=${storedVideoId}`
         );
 
         if (!res.ok) {

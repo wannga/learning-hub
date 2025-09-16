@@ -3,6 +3,7 @@ import SideBar from "./bar/Sidebar.tsx";
 import { Clock, User } from "lucide-react";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type CaseStudies = {
   id: number;
@@ -28,7 +29,7 @@ export default function CaseStudyMain() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/addCaseStudyToHistory/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/addCaseStudyToHistory/${storedUserId}`,
         {
           method: "POST",
           headers: {
@@ -65,7 +66,7 @@ export default function CaseStudyMain() {
   useEffect(() => {
     const fetchCaseStudy = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getAllCaseStudy`);
+        const response = await fetch(`${API_CONFIG.BASE_URL}/getAllCaseStudy`);
         const data = await response.json();
         setCaseStudies(data);
       } catch (error) {

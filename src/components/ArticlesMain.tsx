@@ -3,6 +3,7 @@ import SideBar from "./bar/Sidebar.tsx";
 import { Clock, User } from "lucide-react";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type Article = {
   id: number;
@@ -31,7 +32,7 @@ export default function ArticlesMain() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/addArticleToHistory/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/addArticleToHistory/${storedUserId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -64,7 +65,7 @@ export default function ArticlesMain() {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getAllArticlesBasic`
+          `${API_CONFIG.BASE_URL}/getAllArticlesBasic`
         );
         const data = await response.json();
         setArticles(data);

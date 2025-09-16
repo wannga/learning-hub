@@ -5,6 +5,7 @@ import { MdGTranslate } from "react-icons/md";
 import CourseDropdown from "./CourseDropDown.tsx";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdQuiz } from "react-icons/md";
+import { API_CONFIG } from "../../config/api.js";
 
 type User = {
   id: number;
@@ -23,7 +24,7 @@ function SideBar() {
         if (!storedUserId) return;
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserById/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserById/${storedUserId}`
         );
         if (!res.ok) {
           throw new Error("ไม่สามารถโหลดผู้ใช้ได้");

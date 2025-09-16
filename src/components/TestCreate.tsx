@@ -3,6 +3,7 @@ import Header from "./bar/Header.tsx";
 import SideBar from "./bar/Sidebar.tsx";
 import { useLocation } from "@remix-run/react";
 import axios from "axios";
+import { API_CONFIG } from "./../config/api.js";
 
 function TestCreate() {
   const location = useLocation();
@@ -101,7 +102,7 @@ function TestCreate() {
       };
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/createTest`,
+        `${API_CONFIG.BASE_URL}/createTest`,
         payload
       );
 

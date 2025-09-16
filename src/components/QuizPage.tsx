@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "./bar/Sidebar.tsx";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type Choice = {
   id: number;
@@ -26,7 +27,7 @@ const QuizPage: React.FC = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getQuiz`);
+        const res = await fetch(`${API_CONFIG.BASE_URL}/getQuiz`);
         const data = await res.json();
         console.log("Fetched quiz data:", data);
         const sortedData = data.sort((a: Question, b: Question) => a.id - b.id);
@@ -66,7 +67,7 @@ const QuizPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/updateQuizScore/${storedUserId}`,
+        `${API_CONFIG.BASE_URL}/updateQuizScore/${storedUserId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -3,6 +3,7 @@ import SideBar from "./bar/Sidebar.tsx";
 import { Clock, User } from "lucide-react";
 import Header from "./bar/Header.tsx";
 import { useNavigate } from "@remix-run/react";
+import { API_CONFIG } from "./../config/api.js";
 
 type Video = {
   id: number;
@@ -31,7 +32,7 @@ export default function VideoHistory() {
     const fetchVideos = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getUserVideoHistory/${storedUserId}`
+          `${API_CONFIG.BASE_URL}/getUserVideoHistory/${storedUserId}`
         );
 
         if (!response.ok) {
