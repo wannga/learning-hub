@@ -28,7 +28,7 @@ export default function VideoMain() {
     sessionStorage.setItem("currentVideoId", JSON.stringify(videoId));
 
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/${storedUserId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/addVideoToHistory/${storedUserId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
