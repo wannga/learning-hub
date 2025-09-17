@@ -27,6 +27,14 @@ interface ArticleSection {
   table_rows: string[][];
 }
 
+interface SectionInput {
+  heading: string;
+  contentInput: string;
+  listInput: string;
+  table_headers_input: string;
+  table_rows_input: string;
+}
+
 export default function ArticleCreate() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -46,13 +54,13 @@ export default function ArticleCreate() {
     sections: [],
   });
 
-  const [sections, setSections] = useState([
+  const [sectionsInput, setSectionsInput] = useState<SectionInput[]>([
     {
       heading: '',
-      content: [''],
-      list: [''],
-      table_headers: [''],
-      table_rows: [['']]
+      contentInput: '',
+      listInput: '',
+      table_headers_input: '',
+      table_rows_input: ''
     }
   ]);
 
@@ -111,23 +119,52 @@ export default function ArticleCreate() {
     setArticle({ ...article, infoBox: infoBoxItems });
   };
 
-  const handleSectionChange = (index: number, key: string, value: any) => {
-    const updatedSections = [...sections];
-    (updatedSections[index] as any)[key] = value;
-    setSections(updatedSections);
+  const handleSectionInputChange = (index: number, key: keyof SectionInput, value: string) => {
+    const updatedSectionsInput = [...sectionsInput];
+    updatedSectionsInput[index][key] = value;
+    setSectionsInput(updatedSectionsInput);
   };
 
   const addSection = () => {
-    setSections([
-      ...sections,
+    setSectionsInput([
+      ...sectionsInput,
       {
         heading: '',
-        content: [''],
-        list: [''],
-        table_headers: [''],
-        table_rows: [['']]
+        contentInput: '',
+        listInput: '',
+        table_headers_input: '',
+        table_rows_input: ''
       }
     ]);
+  };
+
+  // process section inputs into the final format
+  const processSectionInputs = (): ArticleSection[] => {
+    return sectionsInput
+      .filter(sectionInput => sectionInput.heading.trim() !== '')
+      .map(sectionInput => ({
+        heading: sectionInput.heading.trim(),
+        content: sectionInput.contentInput
+          .split(CONTENT_SEPARATOR)
+          .map(item => item.trim())
+          .filter(item => item !== ''),
+        list: sectionInput.listInput
+          .split(LIST_SEPARATOR)
+          .map(item => item.trim())
+          .filter(item => item !== ''),
+        table_headers: sectionInput.table_headers_input
+          .split(TABLE_COL_SEPARATOR)
+          .map(item => item.trim())
+          .filter(item => item !== ''),
+        table_rows: sectionInput.table_rows_input
+          .split(TABLE_ROW_SEPARATOR)
+          .map(row => 
+            row.split(TABLE_COL_SEPARATOR)
+              .map(cell => cell.trim())
+              .filter(cell => cell !== '')
+          )
+          .filter(row => row.length > 0)
+      }));
   };
 
   const compressImage = (
@@ -196,7 +233,6 @@ export default function ArticleCreate() {
       let base64Image: string | null = null;
 
       if (article.image) {
-        
         try {
           const compressedDataUrl = await compressImage(article.image);
           base64Image = compressedDataUrl;
@@ -214,15 +250,7 @@ export default function ArticleCreate() {
         }
       }
 
-      const cleanedSections = sections
-        .filter(section => section.heading.trim() !== '')
-        .map(section => ({
-          heading: section.heading.trim(),
-          content: section.content.filter(item => item.trim() !== ''),
-          list: section.list.filter(item => item.trim() !== ''),
-          table_headers: section.table_headers.filter(item => item.trim() !== ''),
-          table_rows: section.table_rows.filter(row => row.some(cell => cell.trim() !== ''))
-        }));
+      const processedSections = processSectionInputs();
 
       const cleanedTags = article.tag.filter(tag => tag.trim() !== '');
       const cleanedInfoBox = article.infoBox.filter(item => item.trim() !== '');
@@ -239,7 +267,7 @@ export default function ArticleCreate() {
         target: article.target.trim(),
         level: article.level.trim(),
         infoBox: cleanedInfoBox.length > 0 ? cleanedInfoBox : [],
-        sections: cleanedSections,
+        sections: processedSections,
       };
 
       console.log('Sending payload:', {
@@ -274,13 +302,13 @@ export default function ArticleCreate() {
           infoBox: [],
           sections: [],
         });
-        setSections([
+        setSectionsInput([
           {
             heading: '',
-            content: [''],
-            list: [''],
-            table_headers: [''],
-            table_rows: [['']]
+            contentInput: '',
+            listInput: '',
+            table_headers_input: '',
+            table_rows_input: ''
           }
         ]);
         setSelectedFile(null);
@@ -478,7 +506,7 @@ export default function ArticleCreate() {
             <div className="border-t pt-6 mt-6">
               <h2 className="text-xl font-bold mb-4">Article Sections</h2>
               
-              {sections.map((section, index) => (
+              {sectionsInput.map((sectionInput, index) => (
                 <div key={index} className="border rounded p-4 mb-4 bg-gray-50">
                   <h3 className="text-lg font-semibold mb-4">Section {index + 1}</h3>
                   
@@ -487,8 +515,8 @@ export default function ArticleCreate() {
                       <label className="block font-semibold">Heading</label>
                       <input
                         type="text"
-                        value={section.heading}
-                        onChange={(e) => handleSectionChange(index, 'heading', e.target.value)}
+                        value={sectionInput.heading}
+                        onChange={(e) => handleSectionInputChange(index, 'heading', e.target.value)}
                         className="w-full border px-4 py-2 rounded"
                         placeholder="หัวข้อ"
                         disabled={isSubmitting}
@@ -498,8 +526,8 @@ export default function ArticleCreate() {
                     <div>
                       <label className="block font-semibold">Content (separate paragraphs with |||)</label>
                       <textarea
-                        value={section.content.join(CONTENT_SEPARATOR)}
-                        onChange={(e) => handleSectionChange(index, 'content', e.target.value.split(CONTENT_SEPARATOR).map(item => item.trim()).filter(item => item !== ''))}
+                        value={sectionInput.contentInput}
+                        onChange={(e) => handleSectionInputChange(index, 'contentInput', e.target.value)}
                         className="w-full border px-4 py-2 rounded"
                         rows={4}
                         placeholder="ย่อหน้าแรก||| ย่อหน้าที่สอง||| ย่อหน้าที่สาม"
@@ -508,13 +536,22 @@ export default function ArticleCreate() {
                       <p className="text-xs text-gray-500 mt-1">
                         ใช้ ||| เพื่อแบ่งย่อหน้า (เช่น: การลงทุนในหุ้นต้องระวัง||| ควรศึกษาข้อมูลก่อนลงทุน)
                       </p>
+                      {/* Preview */}
+                      {sectionInput.contentInput && (
+                        <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
+                          <strong>Preview:</strong>
+                          {sectionInput.contentInput.split(CONTENT_SEPARATOR).map((item, i) => (
+                            <div key={i} className="mb-1">• {item.trim()}</div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div>
                       <label className="block font-semibold">List Items (separate with ###)</label>
                       <textarea
-                        value={section.list.join(LIST_SEPARATOR)}
-                        onChange={(e) => handleSectionChange(index, 'list', e.target.value.split(LIST_SEPARATOR).map(item => item.trim()).filter(item => item !== ''))}
+                        value={sectionInput.listInput}
+                        onChange={(e) => handleSectionInputChange(index, 'listInput', e.target.value)}
                         className="w-full border px-4 py-2 rounded"
                         rows={3}
                         placeholder="รายการแรก### รายการที่สอง### รายการที่สาม"
@@ -523,14 +560,23 @@ export default function ArticleCreate() {
                       <p className="text-xs text-gray-500 mt-1">
                         ใช้ ### เพื่อแบ่งรายการ (เช่น: ตรวจสอบงบการเงิน### วิเคราะห์แนวโน้มตลาด)
                       </p>
+                      {/* Preview */}
+                      {sectionInput.listInput && (
+                        <div className="mt-2 p-2 bg-green-50 rounded text-sm">
+                          <strong>Preview:</strong>
+                          {sectionInput.listInput.split(LIST_SEPARATOR).map((item, i) => (
+                            <div key={i} className="mb-1">- {item.trim()}</div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div>
                       <label className="block font-semibold">Table Headers (separate with |||)</label>
                       <input
                         type="text"
-                        value={section.table_headers.join(TABLE_COL_SEPARATOR)}
-                        onChange={(e) => handleSectionChange(index, 'table_headers', e.target.value.split(TABLE_COL_SEPARATOR).map(item => item.trim()).filter(item => item !== ''))}
+                        value={sectionInput.table_headers_input}
+                        onChange={(e) => handleSectionInputChange(index, 'table_headers_input', e.target.value)}
                         className="w-full border px-4 py-2 rounded"
                         placeholder="หัวข้อที่ 1||| หัวข้อที่ 2||| หัวข้อที่ 3"
                         disabled={isSubmitting}
@@ -543,8 +589,8 @@ export default function ArticleCreate() {
                     <div>
                       <label className="block font-semibold">Table Rows (^^^ separates rows, ||| separates columns)</label>
                       <textarea
-                        value={section.table_rows.map(row => row.join(TABLE_COL_SEPARATOR)).join(TABLE_ROW_SEPARATOR)}
-                        onChange={(e) => handleSectionChange(index, 'table_rows', e.target.value.split(TABLE_ROW_SEPARATOR).map(row => row.split(TABLE_COL_SEPARATOR).map(cell => cell.trim()).filter(cell => cell !== '')))}
+                        value={sectionInput.table_rows_input}
+                        onChange={(e) => handleSectionInputChange(index, 'table_rows_input', e.target.value)}
                         className="w-full border px-4 py-2 rounded"
                         rows={3}
                         placeholder="แถว1คอลัมน์1|||แถว1คอลัมน์2^^^แถว2คอลัมน์1|||แถว2คอลัมน์2"
@@ -553,6 +599,17 @@ export default function ArticleCreate() {
                       <p className="text-xs text-gray-500 mt-1">
                         ใช้ ||| แบ่งคอลัมน์ใน 1 แถว และใช้ ^^^ แบ่งแถว
                       </p>
+                      {/* Preview */}
+                      {sectionInput.table_rows_input && (
+                        <div className="mt-2 p-2 bg-yellow-50 rounded text-sm">
+                          <strong>Preview:</strong>
+                          {sectionInput.table_rows_input.split(TABLE_ROW_SEPARATOR).map((row, i) => (
+                            <div key={i} className="mb-1">
+                              Row {i+1}: [{row.split(TABLE_COL_SEPARATOR).join('] [')}]
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
