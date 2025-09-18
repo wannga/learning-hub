@@ -176,7 +176,7 @@ const TestPage: React.FC = () => {
                   }
                   className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-xl shadow-md font-semibold transition disabled:opacity-50"
                 >
-                  {submitting ? "Submitting..." : "Submit Answers"}
+                  {submitting ? "กำลังส่งคำตอบ..." : "ส่งคำตอบ"}
                 </button>
               ) : (
                 <button

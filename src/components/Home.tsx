@@ -160,7 +160,7 @@ const Home: React.FC = () => {
     };
 
     fetchUser();
-  }, [storedUserId]); // Added storedUserId to dependency array
+  }, [storedUserId]);
 
   const hasValidTags = (tag: string[] | null) => {
     if (!tag) return false;
