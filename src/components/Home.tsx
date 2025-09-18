@@ -213,7 +213,7 @@ const Home: React.FC = () => {
           {/* Content Container */}
           <div className="px-20">
             {/* Video Cards */}
-            <h1 className="my-4 font-bold text-2xl">วิดีโอทั้งหมด</h1>
+            <h1 className="my-4 font-bold text-2xl">หลักสูตรวิดีโอ</h1>
             <section className="pb-6 border-b-2 border-black">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {videos.map((video) => {
@@ -268,13 +268,13 @@ const Home: React.FC = () => {
                     navigate("/videoMain");
                   }}
                 >
-                  ดูวีดีโอทั้งหมด &gt;
+                  ดูวิดีโอทั้งหมด &gt;
                 </button>
               </div>
             </section>
 
             {/* Article Cards */}
-            <h1 className="my-4 font-bold text-2xl">บทความทั้งหมด</h1>
+            <h1 className="my-4 font-bold text-2xl">หลักสูตรบทความ</h1>
             <section className="pb-6 border-b-2 border-black">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {articles.map((article) => {
@@ -339,7 +339,7 @@ const Home: React.FC = () => {
             </section>
 
             {/* Case Cards */}
-            <h1 className="my-4 font-bold text-2xl">กรณีศึกษาทั้งหมด</h1>
+            <h1 className="my-4 font-bold text-2xl">หลักสูตรกรณีศึกษา</h1>
             <section className="pb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {caseStudies.map((caseStudy) => {
