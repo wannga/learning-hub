@@ -51,9 +51,6 @@ const UserEdit: React.FC = () => {
     }
 
     try {
-      console.log("UserEdit - Image data type:", typeof imageData);
-      console.log("UserEdit - Image data preview:", imageData.substring(0, 50));
-
       if (imageData.startsWith("data:image/")) {
         return imageData;
       }
