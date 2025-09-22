@@ -181,14 +181,14 @@ function CaseStudyCreate() {
             </div>
 
             <div>
-              <label className="block font-semibold">Time*</label>
+              <label className="block font-semibold">Date*</label>
               <input
                 type="text"
                 name="time"
                 value={formData.time}
                 onChange={handleChange}
                 className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. 5 นาที หรือ DD/MM/YYYY"
+                placeholder="DD/MM/YYYY"
                 required
                 disabled={isSubmitting}
               />
