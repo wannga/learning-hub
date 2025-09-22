@@ -195,7 +195,7 @@ function VideoCreate() {
             </div>
 
             <div>
-              <label className="block font-semibold">Embeded Video Link*</label>
+              <label className="block font-semibold">Embedded Video Link*</label>
               <input
                 type="text"
                 name="link"

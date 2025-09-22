@@ -486,7 +486,7 @@ export default function ArticleCreate() {
             </div>
 
             <div>
-              <label className="block font-semibold">Info Box (comma separated)</label>
+              <label className="block font-semibold">Table of Contents (comma separated)</label>
               <input
                 type="text"
                 value={infoBoxInput}
